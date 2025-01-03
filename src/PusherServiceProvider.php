@@ -2,9 +2,9 @@
 
 namespace ArtisanBuild\Pusher;
 
+use ArtisanBuild\Pusher\Commands\PusherCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use ArtisanBuild\Pusher\Commands\PusherCommand;
 
 class PusherServiceProvider extends PackageServiceProvider
 {

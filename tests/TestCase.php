@@ -2,9 +2,9 @@
 
 namespace ArtisanBuild\Pusher\Tests;
 
+use ArtisanBuild\Pusher\PusherServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use ArtisanBuild\Pusher\PusherServiceProvider;
 
 class TestCase extends Orchestra
 {
