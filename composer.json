@@ -54,9 +54,10 @@
     "scripts": {
         "post-autoload-dump": "@composer run prepare",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "analyse": "vendor/bin/phpstan analyse",
+        "stan": "vendor/bin/phpstan analyse",
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage",
+        "test:coverage": "XDEBUG_MODE=coverage herd debug vendor/bin/pest --coverage --min=66",
+        "test:types": "vendor/bin/pest --type-coverage --min=95",
         "lint": "vendor/bin/pint",
         "lint:test": "vendor/bin/pint --test"
     },
