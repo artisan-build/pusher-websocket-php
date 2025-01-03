@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace ArtisanBuild\Pusher\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class PusherCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'pusher-websocket-php';
 
     public $description = 'My command';
 

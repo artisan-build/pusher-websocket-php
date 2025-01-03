@@ -1,17 +1,17 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "artisan-build/pusher-websocket-php",
+    "description": "Pusher Channels websocket client library for PHP",
     "keywords": [
-        ":vendor_name",
+        "ArtisanBuild",
         "laravel",
-        ":package_slug"
+        "pusher-websocket-php"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/artisan-build/pusher-websocket-php",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Len Woodward",
+            "email": "Len@ProjektGopher.com",
             "role": "Developer"
         }
     ],
@@ -35,13 +35,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "ArtisanBuild\\Pusher\\": "src/",
+            "ArtisanBuild\\Pusher\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "ArtisanBuild\\Pusher\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +63,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "ArtisanBuild\\Pusher\\PusherServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "Pusher": "ArtisanBuild\\Pusher\\Facades\\Pusher"
             }
         }
     },
