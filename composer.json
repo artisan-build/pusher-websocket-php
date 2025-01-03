@@ -12,7 +12,12 @@
         {
             "name": "Len Woodward",
             "email": "Len@ProjektGopher.com",
-            "role": "Developer"
+            "role": "Co-Founder"
+        },
+        {
+            "name": "Ed Grosvenor",
+            "email": "Ed@Gros.co",
+            "role": "Co-Founder"
         }
     ],
     "require": {
