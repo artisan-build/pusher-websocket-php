@@ -11,7 +11,7 @@ use React\Promise\Deferred;
 use function Ratchet\Client\connect as connector;
 use function React\Async\await;
 
-class Pusher
+class NaivePusher
 {
     public TestConnection $connection;
 
