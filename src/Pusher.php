@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher;
 
+use ArtisanBuild\Pusher\Channels\Channel;
+use ArtisanBuild\Pusher\Channels\Channels;
 use ArtisanBuild\Pusher\Events\Dispatcher as EventsDispatcher;
-use ArtisanBuild\Pusher\Utils\Collections;
-use Closure;
 // import AbstractRuntime from '../runtimes/interface';
 // import Runtime from 'runtime';
 // import Util from './util';
+use ArtisanBuild\Pusher\Utils\Collections;
+use Closure;
 use Exception;
-// import Channels from './channels/channels';
-// import Channel from './channels/channel';
 use RuntimeException;
 
 // import Timeline from './timeline/timeline';
@@ -176,7 +176,7 @@ class Pusher
         }
     }
 
-    public function channel(string $name): Channel
+    public function channel(string $name): ?Channel
     {
         return $this->channels->find($name);
     }

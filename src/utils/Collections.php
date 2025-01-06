@@ -73,23 +73,22 @@ class Collections
     //   return -1;
     // }
 
-    // /** Applies a function f to all properties of an object.
-    //  *
-    //  * Function f gets 3 arguments passed:
-    //  * - element from the object
-    //  * - key of the element
-    //  * - reference to the object
-    //  *
-    //  * @param {Object} object
-    //  * @param {Function} f
-    //  */
-    // export function objectApply(object: any, f: Function) {
-    //   for (var key in object) {
-    //     if (Object.prototype.hasOwnProperty.call(object, key)) {
-    //       f(object[key], key, object);
-    //     }
-    //   }
-    // }
+    /** Applies a function f to all properties of an object.
+     *
+     * Function f gets 3 arguments passed:
+     * - element from the object
+     * - key of the element
+     * - reference to the object
+     */
+    public static function objectApply(object $object, Closure $f)
+    {
+        throw new Exception('Not implemented');
+        // for (var key in object) {
+        //   if (Object.prototype.hasOwnProperty.call(object, key)) {
+        //     f(object[key], key, object);
+        //   }
+        // }
+    }
 
     // /** Return a list of objects own proerty keys
     //  *
@@ -104,18 +103,19 @@ class Collections
     //   return keys;
     // }
 
-    // /** Return a list of object's own property values
-    //  *
-    //  * @param {Object} object
-    //  * @returns {Array}
-    //  */
-    // export function values(object: any): any[] {
-    //   var values = [];
-    //   objectApply(object, function(value) {
-    //     values.push(value);
-    //   });
-    //   return values;
-    // }
+    /** Return a list of object's own property values
+     *
+     * @returns mixed[]
+     */
+    public static function values(object $object): array
+    {
+        throw new Exception('Not implemented');
+        // var values = [];
+        // objectApply(object, function(value) {
+        //   values.push(value);
+        // });
+        // return values;
+    }
 
     // /** Applies a function f to all elements of an array.
     //  *
