@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace ArtisanBuild\Pusher\Channels;
 
 use ArtisanBuild\Pusher\Errors;
-// import Factory from '../utils/factory';
 use ArtisanBuild\Pusher\Pusher;
 use ArtisanBuild\Pusher\Utils\Collections;
+use ArtisanBuild\Pusher\Utils\Factory;
 use ArtisanBuild\Pusher\Utils\UrlStore;
 
 /**
