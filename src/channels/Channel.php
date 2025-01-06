@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Channels;
 
-use ArtisanBuild\Pusher\Channels\Options\ChannelAuthorizationCallback;
-use ArtisanBuild\Pusher\Channels\Options\ChannelAuthorizationData;
+use ArtisanBuild\Pusher\Auth\Options\ChannelAuthorizationCallback;
+use ArtisanBuild\Pusher\Auth\Options\ChannelAuthorizationData;
 use ArtisanBuild\Pusher\Connection\Protocol\MessageTypes\PusherEvent;
 use ArtisanBuild\Pusher\Errors;
 use ArtisanBuild\Pusher\Events\Dispatcher as EventsDispatcher;

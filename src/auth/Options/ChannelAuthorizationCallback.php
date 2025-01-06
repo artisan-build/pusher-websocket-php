@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ArtisanBuild\Pusher\Channels\Options;
+namespace ArtisanBuild\Pusher\Auth\Options;
 
 use Closure;
 use Exception;
