@@ -14,6 +14,7 @@ use Exception;
 // import Channels from './channels/channels';
 // import Channel from './channels/channel';
 use RuntimeException;
+
 // import Timeline from './timeline/timeline';
 // import TimelineSender from './timeline/timeline_sender';
 // import TimelineLevel from './timeline/level';
@@ -35,7 +36,7 @@ class Pusher
 {
     /*  STATIC PROPERTIES */
     /**
-     * @var Pusher[] $instances
+     * @var Pusher[]
      */
     public static array $instances = [];
 
