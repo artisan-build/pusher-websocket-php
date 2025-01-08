@@ -11,6 +11,7 @@ use ArtisanBuild\Pusher\Events\Dispatcher as EventsDispatcher;
 // import Runtime from 'runtime';
 // import Util from './util';
 use ArtisanBuild\Pusher\Utils\Collections;
+use ArtisanBuild\Pusher\Utils\Factory;
 use Closure;
 use Exception;
 use RuntimeException;
@@ -22,12 +23,8 @@ use RuntimeException;
 // import ConnectionManager from './connection/connection_manager';
 // import ConnectionManagerOptions from './connection/connection_manager_options';
 // import { PeriodicTimer } from './utils/timers';
-// import Defaults from './defaults';
-// import * as DefaultConfig from './config';
 // import Logger from './logger';
-// import Factory from './utils/factory';
 // import UrlStore from 'core/utils/url_store';
-// import { Options, validateOptions } from './options';
 // import { Config, getConfig } from './config';
 // import StrategyOptions from './strategies/strategy_options';
 // import UserFacade from './user';
@@ -98,11 +95,11 @@ class Pusher
         self::checkAppKey($app_key);
         Options::validateOptions($options);
         $this->key = $app_key;
-        $this->config = Config::getConfig($options, $this);
+        $this->config = new Config($options, $this);
 
         $this->channels = Factory::createChannels();
         $this->global_emitter = new EventsDispatcher;
-        $this->sessionID = mt_rand(1_000_000_000);
+        $this->sessionID = mt_rand(0, 1_000_000_000);
 
         $this->timeline = new Timeline($this->key, $this->sessionID, new TimelineOptions(
             cluster: $this->config->cluster,
@@ -110,7 +107,7 @@ class Pusher
             params: $this->config->timelineParams || [], // TODO: might fall back to object.
             limit: 50,
             level: TimelineLevel::INFO,
-            version: Defaults::VERSION,
+            version: (new Defaults)->VERSION,
         ));
 
         if ($this->config->enableStats) {

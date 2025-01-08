@@ -7,7 +7,7 @@ namespace ArtisanBuild\Pusher\Auth\Options;
 use Closure;
 use Exception;
 
-class ChannelAuthorizationCallback
+class ChannelAuthorizationCallback implements AuthTransportCallback
 {
     public function __construct(
         public Closure $callback,
