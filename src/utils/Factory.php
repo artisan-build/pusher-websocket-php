@@ -13,12 +13,6 @@ use ArtisanBuild\Pusher\Channels\Channel;
 // import TransportConnection from '../transports/transport_connection';
 // import SocketHooks from '../http/socket_hooks';
 // import HTTPSocket from '../http/http_socket';
-
-// import Timeline from '../timeline/timeline';
-// import {
-//   default as TimelineSender,
-//   TimelineSenderOptions
-// } from '../timeline/timeline_sender';
 use ArtisanBuild\Pusher\Channels\Channels;
 use ArtisanBuild\Pusher\Channels\EncryptedChannel;
 use ArtisanBuild\Pusher\Channels\PresenceChannel;
@@ -27,6 +21,9 @@ use ArtisanBuild\Pusher\Channels\PrivateChannel;
 // import ConnectionManagerOptions from '../connection/connection_manager_options';
 // import Ajax from '../http/ajax';
 use ArtisanBuild\Pusher\Pusher;
+use ArtisanBuild\Pusher\Timeline\Timeline;
+use ArtisanBuild\Pusher\Timeline\TimelineSender;
+use ArtisanBuild\Pusher\Timeline\TimelineSenderOptions;
 use Closure;
 
 // import { Config } from '../config';

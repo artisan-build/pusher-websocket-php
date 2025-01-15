@@ -6,6 +6,7 @@ namespace ArtisanBuild\Pusher\Runtimes;
 
 use ArtisanBuild\Pusher\Auth\AuthTransports;
 use ArtisanBuild\Pusher\Runtimes\Auth\HttpAuth;
+use ArtisanBuild\Pusher\Timeline\TimelineTransport;
 
 // TODO: abstract this
 class Runtime
@@ -26,7 +27,7 @@ class Runtime
 
     // getLocalStorage(): any;
 
-    // TimelineTransport: TimelineTransport;
+    public static TimelineTransport $TimelineTransport;
 
     // createXHR(): Ajax;
 
