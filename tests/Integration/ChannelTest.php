@@ -198,8 +198,9 @@ describe('Presence Channels', function () {
         $members = null;
 
         $pusher->connection->bind('connected', function () use ($pusher, &$members) {
+            /** @var \ArtisanBuild\Pusher\Channels\PresenceChannel $channel */
             $channel = $pusher->subscribe('presence-member-test');
-            $channel->bind('pusher:subscription_succeeded', function ($data) use ($channel, &$members) {
+            $channel->bind('pusher:subscription_succeeded', function () use ($channel, &$members) {
                 $members = $channel->members;
             });
         });
@@ -215,6 +216,7 @@ describe('Presence Channels', function () {
         $me = null;
 
         $pusher->connection->bind('connected', function () use ($pusher, &$me) {
+            /** @var \ArtisanBuild\Pusher\Channels\PresenceChannel $channel */
             $channel = $pusher->subscribe('presence-me-test');
             $channel->bind('pusher:subscription_succeeded', function () use ($channel, &$me) {
                 $me = $channel->members->me;
