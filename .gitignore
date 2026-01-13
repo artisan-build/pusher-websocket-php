@@ -26,9 +26,13 @@ _ide_helper_models.php
 /.fleet
 /.vscode
 
+# Environment
+.env
+.env.*
+!.env.example
+
 # Misc
 phpunit.xml
 phpstan.neon
-testbench.yaml
 /docs
 /coverage

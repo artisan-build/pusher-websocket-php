@@ -5,6 +5,39 @@ declare(strict_types=1);
 namespace ArtisanBuild\Pusher\Tests;
 
 /**
+ * Load environment variables from a .env file.
+ */
+function loadEnv(?string $path = null): void
+{
+    $path ??= dirname(__DIR__).'/.env';
+
+    if (! file_exists($path)) {
+        return;
+    }
+
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        // Skip comments
+        if (str_starts_with(trim($line), '#')) {
+            continue;
+        }
+
+        // Parse KEY=value
+        if (str_contains($line, '=')) {
+            [$key, $value] = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+
+            // Don't override existing env vars
+            if (getenv($key) === false) {
+                putenv("{$key}={$value}");
+            }
+        }
+    }
+}
+
+/**
  * Get an environment variable with a default fallback.
  */
 function env(string $key, mixed $default = null): mixed
@@ -20,17 +53,13 @@ function env(string $key, mixed $default = null): mixed
 
 /**
  * Check if a Pusher-compatible WebSocket server is running.
- *
- * @param  string  $host  The host to check (default: 127.0.0.1)
- * @param  int  $port  The port to check (default: 6001)
- * @param  int  $timeout  Connection timeout in seconds (default: 1)
  */
-function ensureReverbIsRunning(
+function ensurePusherServerIsRunning(
     string $host = '127.0.0.1',
     int $port = 6001,
     int $timeout = 1
 ): bool {
-    $host = env('PUSHER_HOST', $host);
+    $host = (string) env('PUSHER_HOST', $host);
     $port = (int) env('PUSHER_PORT', $port);
 
     set_error_handler(fn () => true);
@@ -72,3 +101,6 @@ function getTestCredentials(): array
         'cluster' => (string) env('PUSHER_CLUSTER', 'mt1'),
     ];
 }
+
+// Load .env file when this file is included
+loadEnv();
