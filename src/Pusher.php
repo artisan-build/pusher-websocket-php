@@ -15,8 +15,10 @@ use ArtisanBuild\Pusher\Timeline\TimelineLevel;
 use ArtisanBuild\Pusher\Timeline\TimelineOptions;
 use ArtisanBuild\Pusher\Timeline\TimelineSender;
 use ArtisanBuild\Pusher\Timeline\TimelineSenderOptions;
+use ArtisanBuild\Pusher\Connection\ConnectionManager;
 use ArtisanBuild\Pusher\Utils\Collections;
 use ArtisanBuild\Pusher\Utils\Factory;
+use ArtisanBuild\Pusher\Utils\Timers\PeriodicTimer;
 use Closure;
 use Exception;
 use RuntimeException;
@@ -49,7 +51,7 @@ class Pusher
     // static DependenciesReceivers: any = (<any>Runtime).DependenciesReceivers;
     // static auth_callbacks: any = (<any>Runtime).auth_callbacks;
 
-    public static function ready()
+    public static function ready(): void
     {
         Pusher::$isReady = true;
         for ($i = 0, $l = count(Pusher::$instances); $i < $l; $i++) {
@@ -188,7 +190,7 @@ class Pusher
         return $this->channels->all();
     }
 
-    public function connect()
+    public function connect(): void
     {
         $this->connection->connect();
 
@@ -204,7 +206,7 @@ class Pusher
         }
     }
 
-    public function disconnect()
+    public function disconnect(): void
     {
         $this->connection->disconnect();
 
@@ -255,7 +257,7 @@ class Pusher
         return $this;
     }
 
-    public function subscribeAll()
+    public function subscribeAll(): void
     {
         // TODO: Implement this method.
         // var channelName;
@@ -267,7 +269,7 @@ class Pusher
         throw new Exception('Not implemented');
     }
 
-    public function subscribe(string $channel_name)
+    public function subscribe(string $channel_name): Channel
     {
         $channel = $this->channels->add($channel_name, $this);
         if ($channel->subscriptionPending && $channel->subscriptionCancelled) {
@@ -282,7 +284,7 @@ class Pusher
         return $channel;
     }
 
-    public function unsubscribe(string $channel_name)
+    public function unsubscribe(string $channel_name): void
     {
         $channel = $this->channels->find($channel_name);
         if ($channel && $channel->subscriptionPending) {
@@ -295,7 +297,7 @@ class Pusher
         }
     }
 
-    public function send_event(string $event_name, mixed $data, ?string $channel = null)
+    public function send_event(string $event_name, mixed $data, ?string $channel = null): mixed
     {
         return $this->connection->send_event($event_name, $data, $channel);
     }
@@ -305,12 +307,12 @@ class Pusher
         return $this->config->useTLS;
     }
 
-    public function signin()
+    public function signin(): void
     {
         $this->user->signin();
     }
 
-    public static function checkAppKey($key)
+    public static function checkAppKey(mixed $key): void
     {
         if ($key === null || empty($key)) {
             throw new RuntimeException(

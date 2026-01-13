@@ -62,14 +62,17 @@ class FlatPromise
         return $this;
     }
 
+    /**
+     * @return array{promise: FlatPromise, resolve: Closure, reject: Closure}
+     */
     public static function create(): array
     {
         $promise = new self();
 
         return [
             'promise' => $promise,
-            'resolve' => fn ($value) => $promise->resolve($value),
-            'reject' => fn ($error) => $promise->reject($error),
+            'resolve' => fn (mixed $value): void => $promise->resolve($value),
+            'reject' => fn (mixed $error): void => $promise->reject($error),
         ];
     }
 }

@@ -20,10 +20,10 @@ class OneOffTimer extends AbstractTimer
         // For now, this is a placeholder that executes immediately
         // TODO: Integrate with ReactPHP or similar event loop
         parent::__construct(
-            fn (Closure $cb, int $delay) => self::setTimeout($cb, $delay),
-            fn (int $timer) => self::clearTimeout($timer),
+            fn (Closure $cb, int $delay): int => self::setTimeout($cb, $delay),
+            fn (int $timer): void => self::clearTimeout($timer),
             $delay,
-            function ($timer) use ($callback) {
+            function (mixed $timer) use ($callback): mixed {
                 $callback();
 
                 return null;

@@ -19,14 +19,14 @@ use RuntimeException;
 // import * as nacl from 'tweetnacl';
 
 /**
- * @property Transport[] $disabledTransports
- * @property Transport[] $enabledTransports
+ * @property string[] $disabledTransports
+ * @property string[] $enabledTransports
  */
 class Options
 {
     /**
-     * @param  Transport[]  $disabledTransports
-     * @param  Transport[]  $enabledTransports
+     * @param  string[]|null  $disabledTransports
+     * @param  string[]|null  $enabledTransports
      */
     public function __construct(
         public ?int $activityTimeout = null,
@@ -69,13 +69,13 @@ class Options
         public ?int $wssPort = null,
     ) {}
 
-    public static function validateOptions(self $options)
+    public static function validateOptions(self $options): void
     {
         if ($options->cluster === null) {
             throw new RuntimeException('Options object must provide a cluster');
         }
         if ($options->disableStats) {
-            (new Logger)->warn(
+            Logger::warn(
                 'The disableStats option is deprecated in favor of enableStats'
             );
         }

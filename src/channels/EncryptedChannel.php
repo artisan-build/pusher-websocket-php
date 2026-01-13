@@ -39,7 +39,7 @@ class EncryptedChannel extends PrivateChannel
     /**
      * Authorizes the connection to use the channel.
      */
-    public function authorize(string $socketId, ChannelAuthorizationCallback $callback)
+    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): mixed
     {
         parent::authorize(
             $socketId,
@@ -78,7 +78,7 @@ class EncryptedChannel extends PrivateChannel
     /**
      * Handles an event. For internal use only.
      */
-    public function handleEvent(PusherEvent $event)
+    public function handleEvent(PusherEvent $event): void
     {
         $eventName = $event->event;
         $data = $event->data;

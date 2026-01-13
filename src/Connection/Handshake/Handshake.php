@@ -41,7 +41,7 @@ class Handshake
 
     private function bindListeners(): void
     {
-        $this->onMessage = function ($m) {
+        $this->onMessage = function (mixed $m): void {
             $this->unbindListeners();
 
             try {
@@ -64,7 +64,7 @@ class Handshake
             }
         };
 
-        $this->onClosed = function ($closeEvent) {
+        $this->onClosed = function (mixed $closeEvent): void {
             $this->unbindListeners();
 
             $action = Protocol::getCloseAction($closeEvent ?? []) ?? 'backoff';

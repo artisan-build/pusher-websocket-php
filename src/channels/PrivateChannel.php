@@ -14,7 +14,7 @@ class PrivateChannel extends Channel
     /**
      * Authorizes the connection to use the channel.
      */
-    public function authorize(string $socketId, ChannelAuthorizationCallback $callback)
+    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): mixed
     {
         return $this->pusher->config->channelAuthorizer(
             [

@@ -26,7 +26,7 @@ class Util
      */
     public static function method(string $name, mixed ...$boundArgs): Closure
     {
-        return function ($object) use ($name, $boundArgs) {
+        return function (object $object) use ($name, $boundArgs): mixed {
             return $object->$name(...$boundArgs);
         };
     }

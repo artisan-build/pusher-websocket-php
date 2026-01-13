@@ -6,10 +6,10 @@ namespace ArtisanBuild\Pusher;
 
 readonly class Defaults
 {
-    public function __construct(
-        public string $VERSION = '7.0.3', // co-pilot
-        public int $PROTOCOL = 7,
+    public const string VERSION = '7.0.3';
+    public const int PROTOCOL = 7;
 
+    public function __construct(
         public int $wsPort = 80,
         public int $wssPort = 443,
         public string $wsPath = '',

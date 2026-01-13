@@ -205,13 +205,23 @@ class TransportConnection extends Dispatcher
             return;
         }
 
-        $this->socket->onopen = fn () => $this->onOpen();
-        $this->socket->onerror = fn ($error) => $this->onError($error);
-        $this->socket->onclose = fn ($closeEvent) => $this->onClose($closeEvent);
-        $this->socket->onmessage = fn ($message) => $this->onMessage($message);
+        $this->socket->onopen = function (): void {
+            $this->onOpen();
+        };
+        $this->socket->onerror = function (mixed $error): void {
+            $this->onError($error);
+        };
+        $this->socket->onclose = function (mixed $closeEvent): void {
+            $this->onClose($closeEvent);
+        };
+        $this->socket->onmessage = function (mixed $message): void {
+            $this->onMessage($message);
+        };
 
         if ($this->supportsPing()) {
-            $this->socket->onactivity = fn () => $this->onActivity();
+            $this->socket->onactivity = function (): void {
+                $this->onActivity();
+            };
         }
     }
 

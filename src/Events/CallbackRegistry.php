@@ -24,7 +24,7 @@ class CallbackRegistry
         return $this->callbacks[self::prefix($name)];
     }
 
-    public function add(string $name, Closure $callback, mixed $context)
+    public function add(string $name, Closure $callback, mixed $context): void
     {
         $prefixedEventName = self::prefix($name);
         $this->callbacks[$prefixedEventName] ??= [];
@@ -34,7 +34,7 @@ class CallbackRegistry
         );
     }
 
-    public function remove(?string $name = null, ?Closure $callback = null, mixed $context = null)
+    public function remove(?string $name = null, ?Closure $callback = null, mixed $context = null): void
     {
         // if (!name && !callback && !context) {
         //   this._callbacks = {};
@@ -53,7 +53,7 @@ class CallbackRegistry
     /**
      * @param  string[]  $names
      */
-    private function removeCallback(array $names, Closure $callback, mixed $context)
+    private function removeCallback(array $names, Closure $callback, mixed $context): void
     {
         // Collections.apply(
         //   names,
@@ -78,7 +78,7 @@ class CallbackRegistry
     /**
      * @param  string[]  $names
      */
-    private function removeAllCallbacks(array $names)
+    private function removeAllCallbacks(array $names): void
     {
         //   Collections.apply(
         //     names,

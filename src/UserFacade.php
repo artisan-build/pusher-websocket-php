@@ -28,12 +28,12 @@ class UserFacade extends Dispatcher
 
     public function __construct(Pusher $pusher)
     {
-        parent::__construct(function ($eventName, $data) {
+        parent::__construct(function (string $eventName, mixed $data): void {
             Logger::debug('No callbacks on user for '.$eventName);
         });
 
         $this->pusher = $pusher;
-        $this->pusher->connection->bind('state_change', function ($event) {
+        $this->pusher->connection->bind('state_change', function (mixed $event): void {
             $previous = $event['previous'] ?? null;
             $current = $event['current'] ?? null;
 
@@ -48,7 +48,7 @@ class UserFacade extends Dispatcher
 
         $this->watchlist = new WatchlistFacade($pusher);
 
-        $this->pusher->connection->bind('message', function ($event) {
+        $this->pusher->connection->bind('message', function (mixed $event): void {
             $eventName = $event->event ?? null;
             if ($eventName === 'pusher:signin_success') {
                 $this->_onSigninSuccess($event->data ?? null);
@@ -99,7 +99,7 @@ class UserFacade extends Dispatcher
             return;
         }
 
-        $this->pusher->sendEvent('pusher:signin', [
+        $this->pusher->send_event('pusher:signin', [
             'auth' => $authData->auth,
             'user_data' => $authData->user_data,
         ]);
@@ -132,7 +132,7 @@ class UserFacade extends Dispatcher
 
     private function _subscribeChannels(): void
     {
-        $ensure_subscribed = function ($channel) {
+        $ensure_subscribed = function (Channel $channel): void {
             if ($channel->subscriptionPending && $channel->subscriptionCancelled) {
                 $channel->reinstateSubscription();
             } elseif (
@@ -147,7 +147,7 @@ class UserFacade extends Dispatcher
             '#server-to-user-'.$this->user_data['id'],
             $this->pusher
         );
-        $this->serverToUserChannel->bindGlobal(function ($eventName, $data) {
+        $this->serverToUserChannel->bind_global(function (string $eventName, mixed $data): void {
             if (
                 str_starts_with($eventName, 'pusher_internal:') ||
                 str_starts_with($eventName, 'pusher:')
@@ -163,7 +163,7 @@ class UserFacade extends Dispatcher
     {
         $this->user_data = null;
         if ($this->serverToUserChannel) {
-            $this->serverToUserChannel->unbindAll();
+            $this->serverToUserChannel->unbind_all();
             $this->serverToUserChannel->disconnect();
             $this->serverToUserChannel = null;
         }

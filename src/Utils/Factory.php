@@ -5,29 +5,23 @@ declare(strict_types=1);
 namespace ArtisanBuild\Pusher\Utils;
 
 use ArtisanBuild\Pusher\Channels\Channel;
-// import AssistantToTheTransportManager from '../transports/assistant_to_the_transport_manager';
-// import PingDelayOptions from '../transports/ping_delay_options';
-// import Transport from '../transports/transport';
-// import TransportManager from '../transports/transport_manager';
-// import Handshake from '../connection/handshake';
-// import TransportConnection from '../transports/transport_connection';
-// import SocketHooks from '../http/socket_hooks';
-// import HTTPSocket from '../http/http_socket';
 use ArtisanBuild\Pusher\Channels\Channels;
 use ArtisanBuild\Pusher\Channels\EncryptedChannel;
 use ArtisanBuild\Pusher\Channels\PresenceChannel;
 use ArtisanBuild\Pusher\Channels\PrivateChannel;
-// import ConnectionManager from '../connection/connection_manager';
-// import ConnectionManagerOptions from '../connection/connection_manager_options';
-// import Ajax from '../http/ajax';
+use ArtisanBuild\Pusher\Connection\ConnectionManager;
+use ArtisanBuild\Pusher\Connection\ConnectionManagerOptions;
+use ArtisanBuild\Pusher\Connection\Handshake\Handshake;
 use ArtisanBuild\Pusher\Pusher;
 use ArtisanBuild\Pusher\Timeline\Timeline;
 use ArtisanBuild\Pusher\Timeline\TimelineSender;
 use ArtisanBuild\Pusher\Timeline\TimelineSenderOptions;
+use ArtisanBuild\Pusher\Transports\AssistantToTheTransportManager;
+use ArtisanBuild\Pusher\Transports\PingDelayOptions;
+use ArtisanBuild\Pusher\Transports\Transport;
+use ArtisanBuild\Pusher\Transports\TransportConnection;
+use ArtisanBuild\Pusher\Transports\TransportManager;
 use Closure;
-
-// import { Config } from '../config';
-// import * as nacl from 'tweetnacl';
 
 class Factory
 {

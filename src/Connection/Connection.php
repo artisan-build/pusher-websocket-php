@@ -93,7 +93,7 @@ class Connection extends Dispatcher
         $unbindListeners = null;
 
         $listeners = [
-            'message' => function ($messageEvent) {
+            'message' => function (mixed $messageEvent): void {
                 $pusherEvent = null;
                 try {
                     $pusherEvent = Protocol::decodeMessage($messageEvent);
@@ -125,9 +125,13 @@ class Connection extends Dispatcher
                     $this->emit('message', $pusherEvent);
                 }
             },
-            'activity' => fn () => $this->emit('activity'),
-            'error' => fn ($error) => $this->emit('error', $error),
-            'closed' => function ($closeEvent) use (&$unbindListeners) {
+            'activity' => function (): void {
+                $this->emit('activity');
+            },
+            'error' => function (mixed $error): void {
+                $this->emit('error', $error);
+            },
+            'closed' => function (mixed $closeEvent) use (&$unbindListeners): void {
                 $unbindListeners();
 
                 if ($closeEvent && isset($closeEvent['code'])) {

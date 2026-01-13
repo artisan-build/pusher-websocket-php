@@ -20,9 +20,6 @@ use Exception;
  * Emits:
  * - pusher:subscription_succeeded - after subscribing successfully
  * - other non-internal events
- *
- * @param {String} name
- * @param {Pusher} pusher
  */
 class Channel extends EventsDispatcher
 {
@@ -36,12 +33,12 @@ class Channel extends EventsDispatcher
 
     public bool $subscriptionCancelled;
 
-    public null $subscriptionCount;
+    public ?int $subscriptionCount = null;
 
     public function __construct(string $name, Pusher $pusher)
     {
-        parent::__construct(failThrough: function ($event, $data) use ($name) {
-            (new Logger)->debug("No callbacks on {$name} for {$event}");
+        parent::__construct(failThrough: function (string $event, mixed $data) use ($name): void {
+            Logger::debug("No callbacks on {$name} for {$event}");
         });
 
         $this->name = $name;
@@ -53,10 +50,8 @@ class Channel extends EventsDispatcher
 
     /**
      * Skips authorization, since public channels don't require it.
-     *
-     * @param {Function} callback
      */
-    public function authorize(string $socketId, ChannelAuthorizationCallback $callback)
+    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): mixed
     {
         return $callback(null, new ChannelAuthorizationData(auth: ''));
     }
@@ -64,7 +59,7 @@ class Channel extends EventsDispatcher
     /**
      * Triggers an event
      */
-    public function trigger(string $event, mixed $data)
+    public function trigger(string $event, mixed $data): mixed
     {
         if (strpos($event, 'client-') !== 0) {
             throw new Errors\BadEventName(
@@ -73,7 +68,7 @@ class Channel extends EventsDispatcher
         }
         if (! $this->subscribed) {
             $suffix = UrlStore::buildLogSuffix('triggeringClientEvents');
-            (new Logger)->warn(
+            Logger::warn(
                 "Client event triggered before channel 'subscription_succeeded' event. {$suffix}"
             );
         }
@@ -84,7 +79,7 @@ class Channel extends EventsDispatcher
     /**
      * Signals disconnection to the channel. For internal use only.
      */
-    public function disconnect()
+    public function disconnect(): void
     {
         $this->subscribed = false;
         $this->subscriptionPending = false;
@@ -93,7 +88,7 @@ class Channel extends EventsDispatcher
     /**
      * Handles a PusherEvent. For internal use only.
      */
-    public function handleEvent(PusherEvent $event)
+    public function handleEvent(PusherEvent $event): void
     {
         $eventName = $event->event;
         $data = $event->data;
@@ -107,7 +102,7 @@ class Channel extends EventsDispatcher
         }
     }
 
-    public function handleSubscriptionSucceededEvent(PusherEvent $event)
+    public function handleSubscriptionSucceededEvent(PusherEvent $event): void
     {
         $this->subscriptionPending = false;
         $this->subscribed = true;
@@ -118,10 +113,10 @@ class Channel extends EventsDispatcher
         }
     }
 
-    public function handleSubscriptionCountEvent(PusherEvent $event)
+    public function handleSubscriptionCountEvent(PusherEvent $event): void
     {
-        if ($event->data->subscription_count) {
-            $this->subscriptionCount = $event->data->subscription_count;
+        if (is_array($event->data) && isset($event->data['subscription_count'])) {
+            $this->subscriptionCount = (int) $event->data['subscription_count'];
         }
 
         $this->emit('pusher:subscription_count', $event->data);
@@ -130,7 +125,7 @@ class Channel extends EventsDispatcher
     /**
      * Sends a subscription request. For internal use only.
      */
-    public function subscribe()
+    public function subscribe(): void
     {
         if ($this->subscribed) {
             return;
@@ -145,7 +140,7 @@ class Channel extends EventsDispatcher
                     // Why not bind to 'pusher:subscription_error' a level up, and log there?
                     // Binding to this event would cause the warning about no callbacks being
                     // bound (see constructor) to be suppressed, that's not what we want.
-                    (new Logger)->error($error->__toString());
+                    Logger::error($error->__toString());
                     // TODO: Implement this event.
                     throw new Exception('Not implemented');
                     // $this->emit(
@@ -173,7 +168,7 @@ class Channel extends EventsDispatcher
     /**
      * Sends an unsubscription request. For internal use only.
      */
-    public function unsubscribe()
+    public function unsubscribe(): void
     {
         $this->subscribed = false;
         $this->pusher->send_event('pusher:unsubscribe', [
@@ -184,7 +179,7 @@ class Channel extends EventsDispatcher
     /**
      * Cancels an in progress subscription. For internal use only.
      */
-    public function cancelSubscription()
+    public function cancelSubscription(): void
     {
         $this->subscriptionCancelled = true;
     }
@@ -192,7 +187,7 @@ class Channel extends EventsDispatcher
     /**
      * Reinstates an in progress subscripiton. For internal use only.
      */
-    public function reinstateSubscription()
+    public function reinstateSubscription(): void
     {
         $this->subscriptionCancelled = false;
     }

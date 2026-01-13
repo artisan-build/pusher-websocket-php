@@ -28,7 +28,7 @@ class PresenceChannel extends PrivateChannel
     /**
      * Authorizes the connection as a member of the channel.
      */
-    public function authorize(string $socketId, ChannelAuthorizationCallback $callback)
+    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): mixed
     {
         // TODO: Implement this method
         // This needs some async/await react goodness.
@@ -64,7 +64,7 @@ class PresenceChannel extends PrivateChannel
     /**
      * Handles presence and subscription events. For internal use only.
      */
-    public function handleEvent(PusherEvent $event)
+    public function handleEvent(PusherEvent $event): void
     {
         $eventName = $event->event;
         if (strpos($eventName, 'pusher_internal:') === 0) {
@@ -79,7 +79,7 @@ class PresenceChannel extends PrivateChannel
         }
     }
 
-    public function handleInternalEvent(PusherEvent $event)
+    public function handleInternalEvent(PusherEvent $event): void
     {
         $eventName = $event->event;
         $data = $event->data;
@@ -103,7 +103,7 @@ class PresenceChannel extends PrivateChannel
         }
     }
 
-    public function handleSubscriptionSucceededEvent(PusherEvent $event)
+    public function handleSubscriptionSucceededEvent(PusherEvent $event): void
     {
         $this->subscriptionPending = false;
         $this->subscribed = true;
@@ -118,7 +118,7 @@ class PresenceChannel extends PrivateChannel
     /**
      * Resets the channel state, including members map. For internal use only.
      */
-    public function disconnect()
+    public function disconnect(): void
     {
         $this->members->reset();
         parent::disconnect();

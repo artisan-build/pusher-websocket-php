@@ -12,24 +12,24 @@ class WatchlistFacade extends EventsDispatcher
 
     public function __construct(Pusher $pusher)
     {
-        parent::__construct(failThrough: function ($eventName, $data) {
-            (new Logger)->debug("No callbacks on watchlist events for {$eventName}");
+        parent::__construct(failThrough: function (string $eventName, mixed $data): void {
+            Logger::debug("No callbacks on watchlist events for {$eventName}");
         });
 
         $this->pusher = $pusher;
         $this->bindWatchlistInternalEvent();
     }
 
-    public function handleEvent($pusherEvent)
+    public function handleEvent(mixed $pusherEvent): void
     {
         foreach ($pusherEvent['data']['events'] as $watchlistEvent) {
             $this->emit($watchlistEvent['name'], $watchlistEvent);
         }
     }
 
-    private function bindWatchlistInternalEvent()
+    private function bindWatchlistInternalEvent(): void
     {
-        $this->pusher->connection->bind('message', function ($pusherEvent) {
+        $this->pusher->connection->bind('message', function (mixed $pusherEvent): void {
             $eventName = $pusherEvent['event'];
             if ($eventName === 'pusher_internal:watchlist_events') {
                 $this->handleEvent($pusherEvent);

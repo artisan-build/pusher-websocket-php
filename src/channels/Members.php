@@ -45,18 +45,18 @@ class Members
     /**
      * Calls back for each member in unspecified order.
      */
-    public function each(Closure $callback)
+    public function each(Closure $callback): void
     {
         Collections::objectApply(
             (object) $this->members,
-            fn ($member, $id) => $callback($this->get($id)),
+            fn (mixed $member, mixed $id): mixed => $callback($this->get((string) $id)),
         );
     }
 
     /**
      * Updates the id for connected member. For internal use only.
      */
-    public function setMyID(string $id)
+    public function setMyID(string $id): void
     {
         $this->myID = $id;
     }
@@ -64,7 +64,7 @@ class Members
     /**
      * Handles subscription data. For internal use only.
      */
-    public function onSubscription(mixed $subscriptionData)
+    public function onSubscription(mixed $subscriptionData): void
     {
         $this->members = $subscriptionData->presence->hash;
         $this->count = $subscriptionData->presence->count;
@@ -74,7 +74,7 @@ class Members
     /**
      * Adds a new member to the collection. For internal use only.
      */
-    public function addMember(mixed $memberData)
+    public function addMember(mixed $memberData): ?object
     {
         if ($this->get($memberData->user_id) === null) {
             $this->count++;
@@ -87,7 +87,7 @@ class Members
     /**
      * Adds a member from the collection. For internal use only.
      */
-    public function removeMember(mixed $memberData)
+    public function removeMember(mixed $memberData): ?object
     {
         $member = $this->get($memberData->user_id);
         if ($member) {
@@ -101,7 +101,7 @@ class Members
     /**
      * Resets the collection to the initial state. For internal use only.
      */
-    public function reset()
+    public function reset(): void
     {
         $this->members = [];
         $this->count = 0;

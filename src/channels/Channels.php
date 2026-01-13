@@ -66,9 +66,9 @@ class Channels
     /**
      * Proxies disconnection signal to all channels.
      */
-    public function disconnect()
+    public function disconnect(): void
     {
-        Collections::objectApply($this->channels, function (Channel $channel) {
+        Collections::objectApply($this->channels, function (Channel $channel): void {
             $channel->disconnect();
         });
     }

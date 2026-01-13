@@ -142,7 +142,7 @@ class ConnectionManager extends Dispatcher
 
     private function startConnecting(): void
     {
-        $callback = function ($error, $handshake) use (&$callback) {
+        $callback = function (mixed $error, mixed $handshake) use (&$callback): void {
             if ($error) {
                 $this->runner = $this->strategy->connect(0, $callback);
             } else {
@@ -264,20 +264,20 @@ class ConnectionManager extends Dispatcher
     private function buildConnectionCallbacks(ErrorCallbacks $errorCallbacks): ConnectionCallbacks
     {
         return new ConnectionCallbacks(
-            message: function ($message) {
+            message: function (mixed $message): void {
                 $this->resetActivityCheck();
                 $this->emit('message', $message);
             },
-            ping: function () {
+            ping: function (): void {
                 $this->sendEvent('pusher:pong', []);
             },
-            activity: function () {
+            activity: function (): void {
                 $this->resetActivityCheck();
             },
-            error: function ($error) {
+            error: function (mixed $error): void {
                 $this->emit('error', $error);
             },
-            closed: function () {
+            closed: function (): void {
                 $this->abandonConnection();
                 if ($this->shouldRetry()) {
                     $this->retryIn(1000);
@@ -305,7 +305,7 @@ class ConnectionManager extends Dispatcher
 
     private function buildErrorCallbacks(): ErrorCallbacks
     {
-        $withErrorEmitted = fn (Closure $callback) => function ($result) use ($callback) {
+        $withErrorEmitted = fn (Closure $callback): Closure => function (mixed $result) use ($callback): void {
             if ($result->error ?? null) {
                 $this->emit('error', ['type' => 'WebSocketError', 'error' => $result->error]);
             }

@@ -74,7 +74,7 @@ class WebSocketPrioritizedCachedStrategy implements Strategy
         $startTimestamp = self::now();
         $runner = null;
 
-        $cb = function ($error, $handshake) use (
+        $cb = function (mixed $error, mixed $handshake) use (
             &$cb,
             &$runner,
             &$strategies,
@@ -83,7 +83,7 @@ class WebSocketPrioritizedCachedStrategy implements Strategy
             $cacheSkipCount,
             $minPriority,
             $callback
-        ) {
+        ): void {
             if ($error) {
                 self::flushTransportCache($usingTLS);
                 if (count($strategies) > 0) {

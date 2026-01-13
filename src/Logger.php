@@ -4,29 +4,28 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher;
 
-// import { stringify } from './utils/collections';
 use ArtisanBuild\Pusher\Utils\Collections;
 use Closure;
 use RuntimeException;
 
 class Logger
 {
-    public function debug(array ...$args)
+    public static function debug(mixed ...$args): void
     {
-        $this->log($this->globalLog(...), $args);
+        self::log(self::globalLog(...), $args);
     }
 
-    public function warn(array ...$args)
+    public static function warn(mixed ...$args): void
     {
-        $this->log($this->globalLogWarn(...), $args);
+        self::log(self::globalLogWarn(...), $args);
     }
 
-    public function error(array ...$args)
+    public static function error(mixed ...$args): void
     {
-        $this->log($this->globalLogError(...), $args);
+        self::log(self::globalLogError(...), $args);
     }
 
-    private function globalLog(string $message)
+    private static function globalLog(string $message): void
     {
         // if (global.console && global.console.log) {
         //   global.console.log(message);
@@ -34,7 +33,7 @@ class Logger
         throw new RuntimeException("Not Implemented Yet.\n\nMessage: {$message}");
     }
 
-    private function globalLogWarn(string $message)
+    private static function globalLogWarn(string $message): void
     {
         // if (global.console && global.console.warn) {
         //   global.console.warn(message);
@@ -44,7 +43,7 @@ class Logger
         throw new RuntimeException("Not Implemented Yet.\n\nMessage: {$message}");
     }
 
-    private function globalLogError(string $message)
+    private static function globalLogError(string $message): void
     {
         // if (global.console && global.console.error) {
         //   global.console.error(message);
@@ -55,12 +54,12 @@ class Logger
     }
 
     /**
-     * @param  callable(string $message): void  $defaultLoggingFunction
+     * @param  array<int, mixed>  $args
      */
-    private function log(
+    private static function log(
         Closure $defaultLoggingFunction,
-        array ...$args,
-    ) {
+        array $args,
+    ): void {
         // var message = stringify.apply(this, arguments);
         // if (Pusher.log) {
         //   Pusher.log(message);

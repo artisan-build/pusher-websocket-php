@@ -9,9 +9,10 @@ namespace ArtisanBuild\Pusher\Utils;
  */
 class UrlStore
 {
-    const BASE_URL = 'https://pusher.com';
+    public const string BASE_URL = 'https://pusher.com';
 
-    const URLS = [
+    /** @var array<string, array{path?: string, fullUrl?: string}> */
+    public const array URLS = [
         'authenticationEndpoint' => [
             'path' => '/docs/channels/server_api/authenticating_users',
         ],

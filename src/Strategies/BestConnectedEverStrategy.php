@@ -35,8 +35,8 @@ class BestConnectedEverStrategy implements Strategy
 
     public function connect(int $minPriority, Closure $callback): StrategyRunner
     {
-        return $this->connectStrategies($this->strategies, $minPriority, function ($i, &$runners) use ($callback) {
-            return function ($error, $handshake) use ($i, &$runners, $callback) {
+        return $this->connectStrategies($this->strategies, $minPriority, function (int $i, array &$runners) use ($callback): Closure {
+            return function (mixed $error, mixed $handshake) use ($i, &$runners, $callback): void {
                 $runners[$i]['error'] = $error;
                 if ($error) {
                     if ($this->allRunnersFailed($runners)) {

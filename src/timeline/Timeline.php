@@ -36,56 +36,53 @@ class Timeline
         $this->uniqueID = 0;
     }
 
-    public function log(TimelineLevel $level, $event)
+    public function log(TimelineLevel $level, mixed $event): void
     {
         if ($level->value <= $this->options->level->value) {
-            $this->events->push(
-                // Collections::extend({}, event, { timestamp: Util.now() })
-            );
+            $this->events[] = $event;
+            // Collections::extend({}, event, { timestamp: Util.now() })
             if ($this->options->limit && count($this->events) > $this->options->limit) {
-                $this->events->shift();
+                array_shift($this->events);
             }
         }
     }
 
-    public function error($event)
+    public function error(mixed $event): void
     {
         $this->log(TimelineLevel::ERROR, $event);
     }
 
-    public function info($event)
+    public function info(mixed $event): void
     {
         $this->log(TimelineLevel::INFO, $event);
     }
 
-    public function debug($event)
+    public function debug(mixed $event): void
     {
         $this->log(TimelineLevel::DEBUG, $event);
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return count($this->events) === 0;
     }
 
-    public function send(Closure $sendfn, Closure $callback)
+    public function send(Closure $sendfn, Closure $callback): bool
     {
-        // $data = Collections::extend(
-        //   {
-        //     session: this.session,
-        //     bundle: this.sent + 1,
-        //     key: this.key,
-        //     lib: 'js',
-        //     version: this.options.version,
-        //     cluster: this.options.cluster,
-        //     features: this.options.features,
-        //     timeline: this.events
-        //   },
-        //   $this->options->params
-        // );
+        $data = [
+            'session' => $this->session,
+            'bundle' => $this->sent + 1,
+            'key' => $this->key,
+            'lib' => 'php',
+            'version' => $this->options->version,
+            'cluster' => $this->options->cluster,
+            'features' => $this->options->features,
+            'timeline' => $this->events,
+            ...$this->options->params,
+        ];
 
         $this->events = [];
-        $sendfn($data, function ($error, $result) use ($callback) {
+        $sendfn($data, function (mixed $error, mixed $result) use ($callback): void {
             if (! $error) {
                 $this->sent++;
             }

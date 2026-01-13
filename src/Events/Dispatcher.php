@@ -8,9 +8,8 @@ use ArtisanBuild\Pusher\Channels\Metadata;
 use ArtisanBuild\Pusher\Utils\Collections;
 use Closure;
 
-/** Manages callback bindings and event emitting.
- *
- * @param Closure failThrough called when no listeners are bound to an event
+/**
+ * Manages callback bindings and event emitting.
  */
 class Dispatcher
 {
@@ -58,7 +57,7 @@ class Dispatcher
 
         $this->global_callbacks = Collections::filter(
             $this->global_callbacks,
-            fn ($c) => $c !== $callback,
+            fn (mixed $c): bool => $c !== $callback,
         );
 
         return $this;

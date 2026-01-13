@@ -58,7 +58,7 @@ class SequentialStrategy implements Strategy
         $timeout = $this->timeout;
         $runner = null;
 
-        $tryNextStrategy = function ($error, $handshake) use (
+        $tryNextStrategy = function (mixed $error, mixed $handshake) use (
             &$tryNextStrategy,
             $callback,
             $strategies,
@@ -66,7 +66,7 @@ class SequentialStrategy implements Strategy
             &$timeout,
             &$minPriority,
             &$runner
-        ) {
+        ): void {
             if ($handshake) {
                 $callback(null, $handshake);
             } else {
@@ -132,13 +132,13 @@ class SequentialStrategy implements Strategy
         $runner = null;
 
         if ($options->timeout > 0) {
-            $timer = new OneOffTimer($options->timeout, function () use (&$runner, $callback) {
+            $timer = new OneOffTimer($options->timeout, function () use (&$runner, $callback): void {
                 $runner->abort();
                 $callback(true);
             });
         }
 
-        $runner = $strategy->connect($minPriority, function ($error, $handshake) use (&$timer, $options, $callback) {
+        $runner = $strategy->connect($minPriority, function (mixed $error, mixed $handshake) use (&$timer, $options, $callback): void {
             if ($error && $timer && $timer->isRunning() && ! $options->failFast) {
                 // advance to the next strategy after the timeout
                 return;

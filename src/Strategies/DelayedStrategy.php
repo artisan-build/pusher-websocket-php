@@ -34,7 +34,7 @@ class DelayedStrategy implements Strategy
     {
         $strategy = $this->strategy;
         $runner = null;
-        $timer = new OneOffTimer($this->delay, function () use ($strategy, &$minPriority, $callback, &$runner) {
+        $timer = new OneOffTimer($this->delay, function () use ($strategy, &$minPriority, $callback, &$runner): void {
             $runner = $strategy->connect($minPriority, $callback);
         });
 

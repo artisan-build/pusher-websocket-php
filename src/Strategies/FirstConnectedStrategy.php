@@ -25,7 +25,7 @@ class FirstConnectedStrategy implements Strategy
 
     public function connect(int $minPriority, Closure $callback): StrategyRunner
     {
-        $runner = $this->strategy->connect($minPriority, function ($error, $handshake) use (&$runner, $callback) {
+        $runner = $this->strategy->connect($minPriority, function (mixed $error, mixed $handshake) use (&$runner, $callback): void {
             if ($handshake) {
                 $runner->abort();
             }

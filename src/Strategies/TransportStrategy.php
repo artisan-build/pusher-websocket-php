@@ -59,31 +59,31 @@ class TransportStrategy implements Strategy
         $handshake = null;
         $unbindListeners = null;
 
-        $onInitialized = function () use ($transport, &$onInitialized) {
+        $onInitialized = function () use ($transport, &$onInitialized): void {
             $transport->unbind('initialized', $onInitialized);
             $transport->connect();
         };
 
-        $onOpen = function () use ($transport, $callback, &$connected, &$handshake, &$unbindListeners) {
-            $handshake = Factory::createHandshake($transport, function ($result) use ($callback, &$connected, &$unbindListeners) {
+        $onOpen = function () use ($transport, $callback, &$connected, &$handshake, &$unbindListeners): void {
+            $handshake = Factory::createHandshake($transport, function (mixed $result) use ($callback, &$connected, &$unbindListeners): void {
                 $connected = true;
                 $unbindListeners();
                 $callback(null, $result);
             });
         };
 
-        $onError = function ($error) use ($callback, &$unbindListeners) {
+        $onError = function (mixed $error) use ($callback, &$unbindListeners): void {
             $unbindListeners();
             $callback($error);
         };
 
-        $onClosed = function () use ($transport, $callback, &$unbindListeners) {
+        $onClosed = function () use ($transport, $callback, &$unbindListeners): void {
             $unbindListeners();
             $serializedTransport = Collections::safeJSONStringify($transport);
             $callback(new TransportClosed($serializedTransport));
         };
 
-        $unbindListeners = function () use ($transport, &$onInitialized, &$onOpen, &$onError, &$onClosed) {
+        $unbindListeners = function () use ($transport, &$onInitialized, &$onOpen, &$onError, &$onClosed): void {
             $transport->unbind('initialized', $onInitialized);
             $transport->unbind('open', $onOpen);
             $transport->unbind('error', $onError);

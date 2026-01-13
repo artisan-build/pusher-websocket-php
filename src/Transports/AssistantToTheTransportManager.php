@@ -59,13 +59,13 @@ class AssistantToTheTransportManager
 
         $openTimestamp = null;
 
-        $onOpen = function () use ($connection, &$onOpen, &$onClosed, &$openTimestamp) {
+        $onOpen = function () use ($connection, &$onOpen, &$onClosed, &$openTimestamp): void {
             $connection->unbind('open', $onOpen);
             $connection->bind('closed', $onClosed);
             $openTimestamp = $this->now();
         };
 
-        $onClosed = function ($closeEvent) use ($connection, &$onClosed, &$openTimestamp) {
+        $onClosed = function (mixed $closeEvent) use ($connection, &$onClosed, &$openTimestamp): void {
             $connection->unbind('closed', $onClosed);
 
             $code = $closeEvent['code'] ?? null;

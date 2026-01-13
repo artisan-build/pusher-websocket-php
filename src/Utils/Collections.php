@@ -9,6 +9,20 @@ use Exception;
 
 class Collections
 {
+    /**
+     * Return a list of object's own property keys.
+     *
+     * @return array<string>
+     */
+    public static function keys(mixed $object = null): array
+    {
+        if ($object === null) {
+            return [];
+        }
+
+        return array_keys((array) $object);
+    }
+
     // import base64encode from '../base64';
     // import Util from '../util';
 
@@ -80,7 +94,7 @@ class Collections
      * - key of the element
      * - reference to the object
      */
-    public static function objectApply(object $object, Closure $f)
+    public static function objectApply(object $object, Closure $f): void
     {
         throw new Exception('Not implemented');
         // for (var key in object) {
