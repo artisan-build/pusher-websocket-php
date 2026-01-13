@@ -71,8 +71,8 @@ class FlatPromise
 
         return [
             'promise' => $promise,
-            'resolve' => fn (mixed $value): void => $promise->resolve($value),
-            'reject' => fn (mixed $error): void => $promise->reject($error),
+            'resolve' => function (mixed $value) use ($promise): void { $promise->resolve($value); },
+            'reject' => function (mixed $error) use ($promise): void { $promise->reject($error); },
         ];
     }
 }

@@ -20,7 +20,7 @@ class PeriodicTimer extends AbstractTimer
         // TODO: Integrate with ReactPHP or similar event loop
         parent::__construct(
             fn (Closure $cb, int $delay): int => self::setInterval($cb, $delay),
-            fn (int $timer): void => self::clearInterval($timer),
+            function (int $timer): void { self::clearInterval($timer); },
             $delay,
             function (mixed $timer) use ($callback): mixed {
                 $callback();

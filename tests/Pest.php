@@ -31,4 +31,4 @@ uses()
             );
         }
     })
-    ->in('Feature/Integration');
+    ->in('Integration');
