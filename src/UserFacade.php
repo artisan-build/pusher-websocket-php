@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher;
 
+use ArtisanBuild\Pusher\Auth\Options\UserAuthenticationCallback;
 use ArtisanBuild\Pusher\Auth\Options\UserAuthenticationData;
+use ArtisanBuild\Pusher\Auth\Options\UserAuthenticationRequestParams;
 use ArtisanBuild\Pusher\Channels\Channel;
 use ArtisanBuild\Pusher\Events\Dispatcher;
 use ArtisanBuild\Pusher\Utils\FlatPromise;
@@ -85,8 +87,8 @@ class UserFacade extends Dispatcher
         }
 
         ($this->pusher->config->userAuthenticator)(
-            ['socketId' => $this->pusher->connection->socket_id],
-            $this->_onAuthorize(...)
+            new UserAuthenticationRequestParams(socketId: $this->pusher->connection->socket_id ?? ''),
+            new UserAuthenticationCallback($this->_onAuthorize(...))
         );
     }
 

@@ -12,7 +12,7 @@ class PusherWithEncryption extends Pusher
     public function __construct(string $appKey, Options $options)
     {
         // Validate options
-        $options->validate();
+        Options::validateOptions($options);
 
         // In PHP, we'd use sodium for encryption
         // $options->nacl = sodium_*;

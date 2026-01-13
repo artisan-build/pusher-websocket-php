@@ -18,7 +18,9 @@ describe('Pusher Connection', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$connected) { return $connected; });
+        runEventLoop(until: function () use (&$connected) {
+            return $connected;
+        });
 
         expect($connected)->toBeTrue();
         expect($pusher->connection->state)->toBe('connected');
@@ -33,7 +35,9 @@ describe('Pusher Connection', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$socketId) { return $socketId !== null; });
+        runEventLoop(until: function () use (&$socketId) {
+            return $socketId !== null;
+        });
 
         expect($socketId)->not->toBeNull();
         expect($socketId)->toBeString();
@@ -53,7 +57,9 @@ describe('Pusher Connection', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$disconnected) { return $disconnected; });
+        runEventLoop(until: function () use (&$disconnected) {
+            return $disconnected;
+        });
 
         expect($disconnected)->toBeTrue();
         expect($pusher->connection->state)->toBe('disconnected');
@@ -73,7 +79,9 @@ describe('Pusher Connection', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$connected) { return $connected; });
+        runEventLoop(until: function () use (&$connected) {
+            return $connected;
+        });
 
         expect($states)->toContain('connecting');
         expect($states)->toContain('connected');
@@ -88,7 +96,9 @@ describe('Pusher Connection', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$connectionCount) { return $connectionCount >= 1; });
+        runEventLoop(until: function () use (&$connectionCount) {
+            return $connectionCount >= 1;
+        });
 
         expect($connectionCount)->toBe(1);
 
@@ -96,7 +106,9 @@ describe('Pusher Connection', function () {
         runEventLoop(timeout: 0.1);
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$connectionCount) { return $connectionCount >= 2; });
+        runEventLoop(until: function () use (&$connectionCount) {
+            return $connectionCount >= 2;
+        });
 
         expect($connectionCount)->toBe(2);
     });

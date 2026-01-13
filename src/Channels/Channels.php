@@ -76,10 +76,8 @@ class Channels
     public static function createChannel(string $name, Pusher $pusher): Channel
     {
         if (strpos($name, 'private-encrypted-') === 0) {
-            if ($pusher->config->nacl) {
-                return Factory::createEncryptedChannel($name, $pusher, $pusher->config->nacl);
-            }
-            $errMsg = 'Tried to subscribe to a private-encrypted- channel but no nacl implementation available';
+            // TODO: nacl encryption support not yet implemented
+            $errMsg = 'Encrypted channels are not yet supported in this PHP implementation';
             $suffix = UrlStore::buildLogSuffix('encryptedChannelSupport');
             throw new Errors\UnsupportedFeature("{$errMsg}. {$suffix}");
         } elseif (strpos($name, 'private-') === 0) {

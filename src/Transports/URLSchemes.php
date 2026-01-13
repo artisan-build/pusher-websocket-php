@@ -53,7 +53,7 @@ class URLSchemes
                 return URLSchemes::getGenericURL('http', $params, $params->httpPath ?? '/pusher');
             }
 
-            public function getPath(string $key, mixed $options): ?string
+            public function getPath(string $key, mixed $options): string
             {
                 return URLSchemes::getGenericPath($key);
             }

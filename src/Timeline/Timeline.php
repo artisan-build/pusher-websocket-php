@@ -86,9 +86,7 @@ class Timeline
             if (! $error) {
                 $this->sent++;
             }
-            if ($callback) {
-                $callback($error, $result);
-            }
+            $callback($error, $result);
         });
 
         return true;

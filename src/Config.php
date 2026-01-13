@@ -230,8 +230,8 @@ class Config
     ): ChannelAuthorizationHandler {
         $channelAuthorization = $this->buildChannelAuth($opts, $pusher);
 
-        if ($channelAuthorization->customHandler != null) {
-            return $channelAuthorization->customHandler;
+        if ($channelAuthorization->customHandler !== null) {
+            return new ChannelAuthorizationHandler($channelAuthorization->customHandler);
         }
 
         $channelAuthorization = new InternalAuthOptions(

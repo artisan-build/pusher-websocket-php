@@ -97,7 +97,7 @@ class Pusher
         $this->timeline = new Timeline($this->key, $this->sessionID, new TimelineOptions(
             cluster: $this->config->cluster,
             features: Pusher::getClientFeatures(),
-            params: $this->config->timelineParams || [], // TODO: might fall back to object.
+            params: $this->config->timelineParams ?? [],
             limit: 50,
             level: TimelineLevel::INFO,
             version: Defaults::VERSION,
@@ -288,7 +288,7 @@ class Pusher
             $channel->cancelSubscription();
         } else {
             $channel = $this->channels->remove($channel_name);
-            if ($channel && $channel->subscribed) {
+            if ($channel->subscribed) {
                 $channel->unsubscribe();
             }
         }

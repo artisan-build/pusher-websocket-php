@@ -57,33 +57,33 @@ class TransportStrategy implements Strategy
             $this->options
         );
         $handshake = null;
-        $unbindListeners = null;
+        $unbindHolder = new UnbindHolder;
 
         $onInitialized = function () use ($transport, &$onInitialized): void {
             $transport->unbind('initialized', $onInitialized);
             $transport->connect();
         };
 
-        $onOpen = function () use ($transport, $callback, &$connected, &$handshake, &$unbindListeners): void {
-            $handshake = Factory::createHandshake($transport, function (mixed $result) use ($callback, &$connected, &$unbindListeners): void {
+        $onOpen = function () use ($transport, $callback, &$connected, &$handshake, $unbindHolder): void {
+            $handshake = Factory::createHandshake($transport, function (mixed $result) use ($callback, &$connected, $unbindHolder): void {
                 $connected = true;
-                $unbindListeners();
+                $unbindHolder->call();
                 $callback(null, $result);
             });
         };
 
-        $onError = function (mixed $error) use ($callback, &$unbindListeners): void {
-            $unbindListeners();
+        $onError = function (mixed $error) use ($callback, $unbindHolder): void {
+            $unbindHolder->call();
             $callback($error);
         };
 
-        $onClosed = function () use ($transport, $callback, &$unbindListeners): void {
-            $unbindListeners();
+        $onClosed = function () use ($transport, $callback, $unbindHolder): void {
+            $unbindHolder->call();
             $serializedTransport = Collections::safeJSONStringify($transport);
             $callback(new TransportClosed($serializedTransport));
         };
 
-        $unbindListeners = function () use ($transport, &$onInitialized, &$onOpen, &$onError, &$onClosed): void {
+        $unbindHolder->unbind = function () use ($transport, &$onInitialized, &$onOpen, &$onError, &$onClosed): void {
             $transport->unbind('initialized', $onInitialized);
             $transport->unbind('open', $onOpen);
             $transport->unbind('error', $onError);
@@ -100,11 +100,11 @@ class TransportStrategy implements Strategy
 
         $strategy = $this;
 
-        return new class($connected, $unbindListeners, $handshake, $transport, $strategy) implements StrategyRunner
+        return new class($connected, $unbindHolder, $handshake, $transport, $strategy) implements StrategyRunner
         {
             public function __construct(
                 private bool &$connected,
-                private Closure $unbindListeners,
+                private UnbindHolder $unbindHolder,
                 private mixed &$handshake,
                 private mixed $transport,
                 private TransportStrategy $strategy,
@@ -115,7 +115,7 @@ class TransportStrategy implements Strategy
                 if ($this->connected) {
                     return;
                 }
-                ($this->unbindListeners)();
+                $this->unbindHolder->call();
                 if ($this->handshake) {
                     $this->handshake->close();
                 } else {

@@ -91,9 +91,9 @@ class Dispatcher
             $args[] = $data;
         }
 
-        if ($callbacks && count($callbacks) > 0) {
-            for ($i = 0; $i < count($callbacks); $i++) {
-                ($callbacks[$i]->fn)(...$args);
+        if ($callbacks !== []) {
+            foreach ($callbacks as $callback) {
+                ($callback->fn)(...$args);
             }
         } elseif ($this->failThrough) {
             ($this->failThrough)($eventName, $data);

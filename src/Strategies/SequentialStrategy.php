@@ -56,7 +56,8 @@ class SequentialStrategy implements Strategy
         $strategies = $this->strategies;
         $current = 0;
         $timeout = $this->timeout;
-        $runner = null;
+        $runnerHolder = new RunnerHolder;
+        $minPriorityHolder = new MinPriorityHolder($minPriority);
 
         $tryNextStrategy = function (mixed $error, mixed $handshake) use (
             &$tryNextStrategy,
@@ -64,8 +65,8 @@ class SequentialStrategy implements Strategy
             $strategies,
             &$current,
             &$timeout,
-            &$minPriority,
-            &$runner
+            $minPriorityHolder,
+            $runnerHolder
         ): void {
             if ($handshake) {
                 $callback(null, $handshake);
@@ -82,9 +83,9 @@ class SequentialStrategy implements Strategy
                             $timeout = min($timeout, $this->timeoutLimit);
                         }
                     }
-                    $runner = $this->tryStrategy(
+                    $runnerHolder->runner = $this->tryStrategy(
                         $strategies[$current],
-                        $minPriority,
+                        $minPriorityHolder->value,
                         new StrategyOptions(timeout: $timeout, failFast: $this->failFast),
                         $tryNextStrategy
                     );
@@ -94,33 +95,14 @@ class SequentialStrategy implements Strategy
             }
         };
 
-        $runner = $this->tryStrategy(
+        $runnerHolder->runner = $this->tryStrategy(
             $strategies[$current],
-            $minPriority,
+            $minPriorityHolder->value,
             new StrategyOptions(timeout: $timeout, failFast: $this->failFast),
             $tryNextStrategy
         );
 
-        return new class($runner, $minPriority) implements StrategyRunner
-        {
-            public function __construct(
-                private ?StrategyRunner &$runner,
-                private int &$minPriority,
-            ) {}
-
-            public function abort(): void
-            {
-                $this->runner->abort();
-            }
-
-            public function forceMinPriority(int $p): void
-            {
-                $this->minPriority = $p;
-                if ($this->runner) {
-                    $this->runner->forceMinPriority($p);
-                }
-            }
-        };
+        return new SequentialStrategyRunner($runnerHolder, $minPriorityHolder);
     }
 
     private function tryStrategy(
@@ -130,11 +112,14 @@ class SequentialStrategy implements Strategy
         Closure $callback
     ): StrategyRunner {
         $timer = null;
+        /** @var ?StrategyRunner $runner */
         $runner = null;
 
         if ($options->timeout > 0) {
             $timer = new OneOffTimer($options->timeout, function () use (&$runner, $callback): void {
-                $runner->abort();
+                if ($runner !== null) {
+                    $runner->abort();
+                }
                 $callback(true);
             });
         }

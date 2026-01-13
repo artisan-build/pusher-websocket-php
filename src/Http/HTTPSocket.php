@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Http;
 
-use ArtisanBuild\Pusher\Runtimes\Runtime;
 use Closure;
 
 class HTTPSocket
 {
-    private static int $autoIncrement = 1;
-
     public SocketHooks $hooks;
 
     public string $session;
@@ -61,15 +58,12 @@ class HTTPSocket
     public function sendRaw(string $payload): bool
     {
         if ($this->readyState === State::OPEN) {
-            try {
-                // Runtime::createSocketRequest(
-                //     'POST',
-                //     self::getUniqueURL(self::getSendURL($this->location, $this->session))
-                // )->start($payload);
-                return true;
-            } catch (\Throwable $e) {
-                return false;
-            }
+            // TODO: Implement SockJS transport
+            // Runtime::createSocketRequest(
+            //     'POST',
+            //     self::getUniqueURL(self::getSendURL($this->location, $this->session))
+            // )->start($payload);
+            return true;
         }
 
         return false;
@@ -100,78 +94,6 @@ class HTTPSocket
         }
     }
 
-    private function onChunk(array $chunk): void
-    {
-        if ($chunk['status'] !== 200) {
-            return;
-        }
-        if ($this->readyState === State::OPEN) {
-            $this->onActivity();
-        }
-
-        $type = substr($chunk['data'], 0, 1);
-        switch ($type) {
-            case 'o':
-                $payload = json_decode(substr($chunk['data'], 1) ?: '{}', true);
-                $this->onOpen($payload);
-                break;
-            case 'a':
-                $payload = json_decode(substr($chunk['data'], 1) ?: '[]', true);
-                foreach ($payload as $item) {
-                    $this->onEvent($item);
-                }
-                break;
-            case 'm':
-                $payload = json_decode(substr($chunk['data'], 1) ?: 'null', true);
-                $this->onEvent($payload);
-                break;
-            case 'h':
-                $this->hooks->onHeartbeat($this);
-                break;
-            case 'c':
-                $payload = json_decode(substr($chunk['data'], 1) ?: '[]', true);
-                $this->onClose($payload[0], $payload[1], true);
-                break;
-        }
-    }
-
-    private function onOpen(?array $options): void
-    {
-        if ($this->readyState === State::CONNECTING) {
-            if ($options && isset($options['hostname'])) {
-                $this->location->base = self::replaceHost($this->location->base, $options['hostname']);
-            }
-            $this->readyState = State::OPEN;
-
-            if ($this->onopen) {
-                ($this->onopen)();
-            }
-        } else {
-            $this->onClose(1006, 'Server lost session', true);
-        }
-    }
-
-    private function onEvent(mixed $event): void
-    {
-        if ($this->readyState === State::OPEN && $this->onmessage) {
-            ($this->onmessage)(['data' => $event]);
-        }
-    }
-
-    private function onActivity(): void
-    {
-        if ($this->onactivity) {
-            ($this->onactivity)();
-        }
-    }
-
-    private function onError(mixed $error): void
-    {
-        if ($this->onerror) {
-            ($this->onerror)($error);
-        }
-    }
-
     private function openStream(): void
     {
         // $this->stream = Runtime::createSocketRequest(
@@ -194,7 +116,7 @@ class HTTPSocket
     private function closeStream(): void
     {
         if ($this->stream) {
-            $this->stream->unbindAll();
+            $this->stream->unbind_all();
             $this->stream->close();
             $this->stream = null;
         }
@@ -208,25 +130,6 @@ class HTTPSocket
             base: $parts[1] ?? '',
             queryString: $parts[2] ?? '',
         );
-    }
-
-    private static function getSendURL(URLLocation $url, string $session): string
-    {
-        return $url->base.'/'.$session.'/xhr_send';
-    }
-
-    private static function getUniqueURL(string $url): string
-    {
-        $separator = strpos($url, '?') === false ? '?' : '&';
-
-        return $url.$separator.'t='.time().'&n='.self::$autoIncrement++;
-    }
-
-    private static function replaceHost(string $url, string $hostname): string
-    {
-        preg_match('/(https?:\/\/)([^\/:]+)((\/|:)?.*)/', $url, $urlParts);
-
-        return $urlParts[1].$hostname.$urlParts[3];
     }
 
     private static function randomNumber(int $max): int

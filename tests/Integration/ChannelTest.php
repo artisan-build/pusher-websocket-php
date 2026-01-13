@@ -18,7 +18,9 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$subscribed) { return $subscribed; });
+        runEventLoop(until: function () use (&$subscribed) {
+            return $subscribed;
+        });
 
         expect($subscribed)->toBeTrue();
     });
@@ -32,7 +34,9 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$channel) { return $channel !== null; });
+        runEventLoop(until: function () use (&$channel) {
+            return $channel !== null;
+        });
 
         expect($channel)->not->toBeNull();
         expect($channel->name)->toBe('test-channel');
@@ -50,7 +54,9 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$done) { return $done; });
+        runEventLoop(until: function () use (&$done) {
+            return $done;
+        });
 
         expect($foundChannel)->not->toBeNull();
         expect($foundChannel->name)->toBe('lookup-channel');
@@ -67,7 +73,9 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$done) { return $done; });
+        runEventLoop(until: function () use (&$done) {
+            return $done;
+        });
 
         expect($channel)->toBeNull();
     });
@@ -85,7 +93,9 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$channelAfterUnsub) { return $channelAfterUnsub !== 'not-checked'; });
+        runEventLoop(until: function () use (&$channelAfterUnsub) {
+            return $channelAfterUnsub !== 'not-checked';
+        });
 
         expect($channelAfterUnsub)->toBeNull();
     });
@@ -104,7 +114,9 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$done) { return $done; });
+        runEventLoop(until: function () use (&$done) {
+            return $done;
+        });
 
         expect($channels)->toHaveCount(3);
     });
@@ -123,7 +135,9 @@ describe('Private Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$subscribed) { return $subscribed; });
+        runEventLoop(until: function () use (&$subscribed) {
+            return $subscribed;
+        });
 
         expect($subscribed)->toBeTrue();
     });
@@ -141,7 +155,9 @@ describe('Private Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$error) { return $error !== null; });
+        runEventLoop(until: function () use (&$error) {
+            return $error !== null;
+        });
 
         expect($error)->not->toBeNull();
     });
@@ -160,7 +176,9 @@ describe('Private Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$eventSent) { return $eventSent; });
+        runEventLoop(until: function () use (&$eventSent) {
+            return $eventSent;
+        });
 
         expect($eventSent)->toBeTrue();
     });
@@ -195,7 +213,9 @@ describe('Presence Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$subscribed) { return $subscribed; });
+        runEventLoop(until: function () use (&$subscribed) {
+            return $subscribed;
+        });
 
         expect($subscribed)->toBeTrue();
     });
@@ -213,7 +233,9 @@ describe('Presence Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$members) { return $members !== null; });
+        runEventLoop(until: function () use (&$members) {
+            return $members !== null;
+        });
 
         expect($members)->not->toBeNull();
     });
@@ -231,7 +253,9 @@ describe('Presence Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$me) { return $me !== null; });
+        runEventLoop(until: function () use (&$me) {
+            return $me !== null;
+        });
 
         expect($me)->not->toBeNull();
     });

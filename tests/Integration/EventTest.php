@@ -19,7 +19,9 @@ describe('Event Binding', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$channel) { return $channel !== null; });
+        runEventLoop(until: function () use (&$channel) {
+            return $channel !== null;
+        });
 
         // The channel binding should be set up even if no event is received
         expect($pusher->channel('bind-test'))->not->toBeNull();
@@ -45,7 +47,9 @@ describe('Event Binding', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$callCount) { return $callCount >= 2; });
+        runEventLoop(until: function () use (&$callCount) {
+            return $callCount >= 2;
+        });
 
         expect($callCount)->toBe(2);
     });
@@ -67,7 +71,9 @@ describe('Event Binding', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$events) { return count($events) >= 2; });
+        runEventLoop(until: function () use (&$events) {
+            return count($events) >= 2;
+        });
 
         expect($events)->toContain('event-one');
         expect($events)->toContain('event-two');
@@ -88,7 +94,9 @@ describe('Event Binding', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$receivedData) { return $receivedData !== null; });
+        runEventLoop(until: function () use (&$receivedData) {
+            return $receivedData !== null;
+        });
 
         expect($receivedData)->toBe(['message' => 'hello', 'count' => 42]);
     });
@@ -116,7 +124,9 @@ describe('Event Unbinding', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$done) { return $done; });
+        runEventLoop(until: function () use (&$done) {
+            return $done;
+        });
 
         expect($callCount)->toBe(1);
     });
@@ -145,7 +155,9 @@ describe('Event Unbinding', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$done) { return $done; });
+        runEventLoop(until: function () use (&$done) {
+            return $done;
+        });
 
         expect($callCount)->toBe(2);
     });
@@ -178,7 +190,9 @@ describe('Event Unbinding', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$done) { return $done; });
+        runEventLoop(until: function () use (&$done) {
+            return $done;
+        });
 
         expect($callCount)->toBe(2);
     });
@@ -204,7 +218,9 @@ describe('Event Unbinding', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$done) { return $done; });
+        runEventLoop(until: function () use (&$done) {
+            return $done;
+        });
 
         expect($callCount)->toBe(1);
     });
@@ -225,7 +241,9 @@ describe('Global Event Binding (Pusher instance)', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$events) { return count($events) >= 1; });
+        runEventLoop(until: function () use (&$events) {
+            return count($events) >= 1;
+        });
 
         expect($events)->toHaveCount(1);
         expect($events[0])->toBe(['source' => 'global']);
@@ -284,7 +302,9 @@ describe('Event Reception', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0, until: function () use (&$receivedEvent) { return $receivedEvent !== null; });
+        runEventLoop(timeout: 3.0, until: function () use (&$receivedEvent) {
+            return $receivedEvent !== null;
+        });
 
         expect($receivedEvent)->toBe(['hello' => 'world']);
     });
@@ -314,7 +334,9 @@ describe('Event Reception', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0, until: function () use (&$channel1Events) { return count($channel1Events) >= 1; });
+        runEventLoop(timeout: 3.0, until: function () use (&$channel1Events) {
+            return count($channel1Events) >= 1;
+        });
 
         expect($channel1Events)->toHaveCount(1);
         expect($channel2Events)->toHaveCount(0);
@@ -334,7 +356,9 @@ describe('Fluent Interface', function () {
         });
 
         $pusher->connect();
-        runEventLoop(until: function () use (&$channel) { return $channel !== null; });
+        runEventLoop(until: function () use (&$channel) {
+            return $channel !== null;
+        });
 
         expect($channel->name)->toBe('chain-test');
     });

@@ -58,10 +58,14 @@ class AssistantToTheTransportManager
         );
 
         $openTimestamp = null;
+        /** @var ?\Closure $onClosed */
+        $onClosed = null;
 
         $onOpen = function () use ($connection, &$onOpen, &$onClosed, &$openTimestamp): void {
             $connection->unbind('open', $onOpen);
-            $connection->bind('closed', $onClosed);
+            if ($onClosed !== null) {
+                $connection->bind('closed', $onClosed);
+            }
             $openTimestamp = $this->now();
         };
 

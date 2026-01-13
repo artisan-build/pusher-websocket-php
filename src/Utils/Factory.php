@@ -71,9 +71,6 @@ class Factory
         return new TimelineSender($timeline, $options);
     }
 
-    /**
-     * @param  fn(HandshakePayload):void  $callback
-     */
     public static function createHandshake(
         TransportConnection $transport,
         Closure $callback,

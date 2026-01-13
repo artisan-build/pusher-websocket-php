@@ -292,7 +292,7 @@ class ConnectionManager extends Dispatcher
                 $this->activityTimeout = min(
                     $this->options->activityTimeout,
                     $handshake->activityTimeout ?? PHP_INT_MAX,
-                    $handshake->connection?->activityTimeout ?? PHP_INT_MAX
+                    $handshake->connection->activityTimeout ?? PHP_INT_MAX
                 );
                 $this->clearUnavailableTimer();
                 $this->setConnection($handshake->connection);

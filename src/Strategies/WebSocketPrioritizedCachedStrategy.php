@@ -72,23 +72,24 @@ class WebSocketPrioritizedCachedStrategy implements Strategy
         }
 
         $startTimestamp = self::now();
-        $runner = null;
+        $runnerHolder = new RunnerHolder;
+        $minPriorityHolder = new MinPriorityHolder($minPriority);
 
         $cb = function (mixed $error, mixed $handshake) use (
             &$cb,
-            &$runner,
+            $runnerHolder,
             &$strategies,
             &$startTimestamp,
             $usingTLS,
             $cacheSkipCount,
-            $minPriority,
+            $minPriorityHolder,
             $callback
         ): void {
             if ($error) {
                 self::flushTransportCache($usingTLS);
                 if (count($strategies) > 0) {
                     $startTimestamp = self::now();
-                    $runner = array_pop($strategies)->connect($minPriority, $cb);
+                    $runnerHolder->runner = array_pop($strategies)->connect($minPriorityHolder->value, $cb);
                 } else {
                     $callback($error);
                 }
@@ -103,28 +104,9 @@ class WebSocketPrioritizedCachedStrategy implements Strategy
             }
         };
 
-        $runner = array_pop($strategies)->connect($minPriority, $cb);
+        $runnerHolder->runner = array_pop($strategies)->connect($minPriorityHolder->value, $cb);
 
-        return new class($runner, $minPriority) implements StrategyRunner
-        {
-            public function __construct(
-                private ?StrategyRunner &$runner,
-                private int &$minPriority,
-            ) {}
-
-            public function abort(): void
-            {
-                $this->runner->abort();
-            }
-
-            public function forceMinPriority(int $p): void
-            {
-                $this->minPriority = $p;
-                if ($this->runner) {
-                    $this->runner->forceMinPriority($p);
-                }
-            }
-        };
+        return new CachedStrategyRunner($runnerHolder, $minPriorityHolder);
     }
 
     private static function now(): int

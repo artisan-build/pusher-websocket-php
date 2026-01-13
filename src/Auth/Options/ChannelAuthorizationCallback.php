@@ -13,8 +13,8 @@ class ChannelAuthorizationCallback implements AuthTransportCallback
         public Closure $callback,
     ) {}
 
-    public function __invoke(?Exception $error, ChannelAuthorizationData $data)
+    public function __invoke(?Exception $error, ChannelAuthorizationData $data): void
     {
-        return ($this->callback)($error, $data);
+        ($this->callback)($error, $data);
     }
 }

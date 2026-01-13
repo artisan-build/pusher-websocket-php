@@ -90,6 +90,7 @@ class Connection extends Dispatcher
 
     private function bindListeners(): void
     {
+        /** @var ?\Closure $unbindListeners */
         $unbindListeners = null;
 
         $listeners = [
@@ -132,7 +133,9 @@ class Connection extends Dispatcher
                 $this->emit('error', $error);
             },
             'closed' => function (mixed $closeEvent) use (&$unbindListeners): void {
-                $unbindListeners();
+                if ($unbindListeners !== null) {
+                    $unbindListeners();
+                }
 
                 if ($closeEvent && isset($closeEvent['code'])) {
                     $this->handleCloseEvent($closeEvent);
@@ -143,7 +146,7 @@ class Connection extends Dispatcher
             },
         ];
 
-        $unbindListeners = function () use ($listeners) {
+        $unbindListeners = function () use ($listeners): void {
             foreach ($listeners as $event => $listener) {
                 $this->transport?->unbind($event, $listener);
             }

@@ -52,9 +52,9 @@ class Channel extends EventsDispatcher
     /**
      * Skips authorization, since public channels don't require it.
      */
-    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): mixed
+    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): void
     {
-        return $callback(null, new ChannelAuthorizationData(auth: ''));
+        $callback(null, new ChannelAuthorizationData(auth: ''));
     }
 
     /**

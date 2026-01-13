@@ -130,7 +130,7 @@ class Collections
     public static function values(object $object): array
     {
         $values = [];
-        self::objectApply($object, function ($value) use (&$values) {
+        self::objectApply($object, function (mixed $value) use (&$values): void {
             $values[] = $value;
         });
 

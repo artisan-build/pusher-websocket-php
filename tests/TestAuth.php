@@ -56,7 +56,7 @@ class TestAuth implements AuthTransport
 
         if ($isPresence) {
             // Presence channels require channel_data with user_id
-            $userId = 'test_user_' . substr(md5($socketId), 0, 8);
+            $userId = 'test_user_'.substr(md5($socketId), 0, 8);
             $channelData = json_encode([
                 'user_id' => $userId,
                 'user_info' => [

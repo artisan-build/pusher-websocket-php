@@ -28,12 +28,9 @@ class WebSocketWrapper
 
     private ?Throwable $error = null;
 
-    private bool $connectionSet = false;
-
     public function setConnection(WebSocket $connection): void
     {
         $this->connection = $connection;
-        $this->connectionSet = true;
         $this->bindEvents();
         $this->triggerOpen();
     }
@@ -41,7 +38,6 @@ class WebSocketWrapper
     public function setError(Throwable $error): void
     {
         $this->error = $error;
-        $this->connectionSet = true;
         $this->triggerError();
     }
 

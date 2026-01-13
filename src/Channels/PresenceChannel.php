@@ -28,9 +28,9 @@ class PresenceChannel extends PrivateChannel
     /**
      * Authorizes the connection as a member of the channel.
      */
-    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): mixed
+    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): void
     {
-        return parent::authorize(
+        parent::authorize(
             $socketId,
             new ChannelAuthorizationCallback(function (?Exception $error, ChannelAuthorizationData $authData) use ($callback) {
                 if ($error === null) {

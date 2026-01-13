@@ -15,15 +15,10 @@ use Closure;
  */
 class DelayedStrategy implements Strategy
 {
-    public Strategy $strategy;
-
-    public int $delay;
-
-    public function __construct(Strategy $strategy, int $delay)
-    {
-        $this->strategy = $strategy;
-        $this->delay = $delay;
-    }
+    public function __construct(
+        public Strategy $strategy,
+        public int $delay,
+    ) {}
 
     public function isSupported(): bool
     {
@@ -33,34 +28,13 @@ class DelayedStrategy implements Strategy
     public function connect(int $minPriority, Closure $callback): StrategyRunner
     {
         $strategy = $this->strategy;
-        $runner = null;
-        $timer = new OneOffTimer($this->delay, function () use ($strategy, &$minPriority, $callback, &$runner): void {
-            $runner = $strategy->connect($minPriority, $callback);
+        $runnerHolder = new RunnerHolder;
+        $minPriorityHolder = new MinPriorityHolder($minPriority);
+
+        $timer = new OneOffTimer($this->delay, function () use ($strategy, $minPriorityHolder, $callback, $runnerHolder): void {
+            $runnerHolder->runner = $strategy->connect($minPriorityHolder->value, $callback);
         });
 
-        return new class($timer, $runner, $minPriority) implements StrategyRunner
-        {
-            public function __construct(
-                private OneOffTimer $timer,
-                private ?StrategyRunner &$runner,
-                private int &$minPriority,
-            ) {}
-
-            public function abort(): void
-            {
-                $this->timer->ensureAborted();
-                if ($this->runner) {
-                    $this->runner->abort();
-                }
-            }
-
-            public function forceMinPriority(int $p): void
-            {
-                $this->minPriority = $p;
-                if ($this->runner) {
-                    $this->runner->forceMinPriority($p);
-                }
-            }
-        };
+        return new DelayedStrategyRunner($timer, $runnerHolder, $minPriorityHolder);
     }
 }

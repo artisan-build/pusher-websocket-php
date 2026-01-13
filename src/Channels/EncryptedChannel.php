@@ -39,7 +39,7 @@ class EncryptedChannel extends PrivateChannel
     /**
      * Authorizes the connection to use the channel.
      */
-    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): mixed
+    public function authorize(string $socketId, ChannelAuthorizationCallback $callback): void
     {
         parent::authorize(
             $socketId,
@@ -52,18 +52,20 @@ class EncryptedChannel extends PrivateChannel
                 $sharedSecret = $authData->shared_secret;
                 if (! $sharedSecret) {
                     $callback(
-                        // TODO: Should we make our own Error class?
                         new Exception(
                             "No shared_secret key in auth payload for encrypted channel: {$this->name}"
                         ),
-                        null,
+                        new ChannelAuthorizationData(auth: ''),
                     );
 
                     return;
                 }
                 $this->key = base64_decode($sharedSecret);
-                unset($authData->shared_secret);
-                $callback(null, $authData);
+                // Return auth data without the shared_secret
+                $callback(null, new ChannelAuthorizationData(
+                    auth: $authData->auth,
+                    channel_data: $authData->channel_data,
+                ));
             }
             ));
     }
