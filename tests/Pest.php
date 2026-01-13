@@ -37,7 +37,7 @@ uses()
             throw new RuntimeException(
                 "Integration tests require a running Pusher-compatible server.\n".
                 "Configure PUSHER_HOST and PUSHER_PORT in .env or environment.\n".
-                "Default: 127.0.0.1:6001"
+                'Default: 127.0.0.1:6001'
             );
         }
     })
