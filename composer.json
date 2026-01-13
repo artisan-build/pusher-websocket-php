@@ -33,7 +33,6 @@
     "require-dev": {
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.14",
-        "laravel/reverb": "^1.7",
         "nunomaduro/collision": "^8.8",
         "orchestra/testbench": "^9.0||^10.0",
         "pestphp/pest": "^3.0||^4.0",
