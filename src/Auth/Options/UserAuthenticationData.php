@@ -8,6 +8,6 @@ class UserAuthenticationData
 {
     public function __construct(
         public string $auth,
-        public string $user_data,
+        public ?string $user_data = null,
     ) {}
 }

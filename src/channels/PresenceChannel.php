@@ -30,35 +30,33 @@ class PresenceChannel extends PrivateChannel
      */
     public function authorize(string $socketId, ChannelAuthorizationCallback $callback): mixed
     {
-        // TODO: Implement this method
-        // This needs some async/await react goodness.
-        throw new Exception('Not implemented');
-        // parent::authorize($socketId, async (error, authData) => {
-        //   if (!error) {
-        //     authData = authData as ChannelAuthorizationData;
-        //     if (authData.channel_data != null) {
-        //       var channelData = JSON.parse(authData.channel_data);
-        //       this.members.setMyID(channelData.user_id);
-        //     } else {
-        //       await this.pusher.user.signinDonePromise;
-        //       if (this.pusher.user.user_data != null) {
-        //         // If the user is signed in, get the id of the authenticated user
-        //         // and allow the presence authorization to continue.
-        //         this.members.setMyID(this.pusher.user.user_data.id);
-        //       } else {
-        //         let suffix = UrlStore.buildLogSuffix('authorizationEndpoint');
-        //         Logger.error(
-        //           `Invalid auth response for channel '${this.name}', ` +
-        //             `expected 'channel_data' field. ${suffix}, ` +
-        //             `or the user should be signed in.`
-        //         );
-        //         callback('Invalid auth response');
-        //         return;
-        //       }
-        //     }
-        //   }
-        //   callback(error, authData);
-        // });
+        return parent::authorize(
+            $socketId,
+            new ChannelAuthorizationCallback(function (?Exception $error, ChannelAuthorizationData $authData) use ($callback) {
+                if ($error === null) {
+                    if ($authData->channel_data !== null) {
+                        $channelData = json_decode($authData->channel_data, true);
+                        if ($channelData && isset($channelData['user_id'])) {
+                            $this->members->setMyID($channelData['user_id']);
+                        }
+                    } elseif ($this->pusher->user->user_data !== null) {
+                        // If the user is signed in, get the id of the authenticated user
+                        $this->members->setMyID($this->pusher->user->user_data['id'] ?? null);
+                    } else {
+                        $suffix = UrlStore::buildLogSuffix('authorizationEndpoint');
+                        Logger::error(
+                            "Invalid auth response for channel '{$this->name}', ".
+                            "expected 'channel_data' field. {$suffix}, ".
+                            'or the user should be signed in.'
+                        );
+                        $callback(new Exception('Invalid auth response'), $authData);
+
+                        return;
+                    }
+                }
+                $callback($error, $authData);
+            })
+        );
     }
 
     /**

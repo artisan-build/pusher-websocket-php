@@ -18,7 +18,7 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0);
+        runEventLoop(until: function () use (&$subscribed) { return $subscribed; });
 
         expect($subscribed)->toBeTrue();
     });
@@ -32,7 +32,7 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 2.0);
+        runEventLoop(until: function () use (&$channel) { return $channel !== null; });
 
         expect($channel)->not->toBeNull();
         expect($channel->name)->toBe('test-channel');
@@ -41,14 +41,16 @@ describe('Public Channels', function () {
     it('can retrieve a subscribed channel by name', function () {
         $pusher = createTestClient();
         $foundChannel = null;
+        $done = false;
 
-        $pusher->connection->bind('connected', function () use ($pusher, &$foundChannel) {
+        $pusher->connection->bind('connected', function () use ($pusher, &$foundChannel, &$done) {
             $pusher->subscribe('lookup-channel');
             $foundChannel = $pusher->channel('lookup-channel');
+            $done = true;
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 2.0);
+        runEventLoop(until: function () use (&$done) { return $done; });
 
         expect($foundChannel)->not->toBeNull();
         expect($foundChannel->name)->toBe('lookup-channel');
@@ -56,14 +58,16 @@ describe('Public Channels', function () {
 
     it('returns null for non-existent channel', function () {
         $pusher = createTestClient();
-        $channel = null;
+        $channel = 'not-checked';
+        $done = false;
 
-        $pusher->connection->bind('connected', function () use ($pusher, &$channel) {
+        $pusher->connection->bind('connected', function () use ($pusher, &$channel, &$done) {
             $channel = $pusher->channel('non-existent');
+            $done = true;
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 2.0);
+        runEventLoop(until: function () use (&$done) { return $done; });
 
         expect($channel)->toBeNull();
     });
@@ -81,7 +85,7 @@ describe('Public Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0);
+        runEventLoop(until: function () use (&$channelAfterUnsub) { return $channelAfterUnsub !== 'not-checked'; });
 
         expect($channelAfterUnsub)->toBeNull();
     });
@@ -89,16 +93,18 @@ describe('Public Channels', function () {
     it('can list all subscribed channels', function () {
         $pusher = createTestClient();
         $channels = [];
+        $done = false;
 
-        $pusher->connection->bind('connected', function () use ($pusher, &$channels) {
+        $pusher->connection->bind('connected', function () use ($pusher, &$channels, &$done) {
             $pusher->subscribe('channel-1');
             $pusher->subscribe('channel-2');
             $pusher->subscribe('channel-3');
             $channels = $pusher->allChannels();
+            $done = true;
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 2.0);
+        runEventLoop(until: function () use (&$done) { return $done; });
 
         expect($channels)->toHaveCount(3);
     });
@@ -117,24 +123,25 @@ describe('Private Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0);
+        runEventLoop(until: function () use (&$subscribed) { return $subscribed; });
 
         expect($subscribed)->toBeTrue();
     });
 
-    it('emits subscription_error for private channel without auth', function () {
-        $pusher = createTestClient(withAuth: false);
+    it('emits subscription_error when auth is denied', function () {
+        $pusher = createTestClient(withAuth: true);
         $error = null;
 
         $pusher->connection->bind('connected', function () use ($pusher, &$error) {
-            $channel = $pusher->subscribe('private-no-auth');
+            // Channel name containing 'unauthorized' triggers a 403 from TestAuth
+            $channel = $pusher->subscribe('private-unauthorized-channel');
             $channel->bind('pusher:subscription_error', function ($data) use (&$error) {
                 $error = $data;
             });
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0);
+        runEventLoop(until: function () use (&$error) { return $error !== null; });
 
         expect($error)->not->toBeNull();
     });
@@ -153,7 +160,7 @@ describe('Private Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0);
+        runEventLoop(until: function () use (&$eventSent) { return $eventSent; });
 
         expect($eventSent)->toBeTrue();
     });
@@ -170,7 +177,7 @@ describe('Private Channels', function () {
 
         $pusher->connect();
 
-        expect(fn () => runEventLoop(timeout: 3.0))
+        expect(fn () => runEventLoop(timeout: 1.0))
             ->toThrow(ArtisanBuild\Pusher\Errors\BadEventName::class);
     });
 });
@@ -188,7 +195,7 @@ describe('Presence Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0);
+        runEventLoop(until: function () use (&$subscribed) { return $subscribed; });
 
         expect($subscribed)->toBeTrue();
     });
@@ -206,7 +213,7 @@ describe('Presence Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0);
+        runEventLoop(until: function () use (&$members) { return $members !== null; });
 
         expect($members)->not->toBeNull();
     });
@@ -224,7 +231,7 @@ describe('Presence Channels', function () {
         });
 
         $pusher->connect();
-        runEventLoop(timeout: 3.0);
+        runEventLoop(until: function () use (&$me) { return $me !== null; });
 
         expect($me)->not->toBeNull();
     });

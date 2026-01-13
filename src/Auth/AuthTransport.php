@@ -7,7 +7,6 @@ namespace ArtisanBuild\Pusher\Auth;
 use ArtisanBuild\Pusher\Auth\Options\AuthRequestType;
 use ArtisanBuild\Pusher\Auth\Options\InternalAuthOptions;
 use ArtisanBuild\Pusher\Runtimes\Runtime;
-use Closure;
 
 interface AuthTransport
 {
@@ -16,6 +15,6 @@ interface AuthTransport
         string $query,
         InternalAuthOptions $authOptions,
         AuthRequestType $authRequestType,
-        Closure $callback,
+        callable $callback,
     ): void;
 }

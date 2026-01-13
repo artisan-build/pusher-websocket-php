@@ -13,6 +13,5 @@ class HTTPAuthError extends Exception
         ?string $message = null,
     ) {
         parent::__construct($message);
-        $this->status = $status;
     }
 }

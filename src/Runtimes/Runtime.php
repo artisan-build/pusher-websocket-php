@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Runtimes;
 
+use ArtisanBuild\Pusher\Auth\AuthTransport;
 use ArtisanBuild\Pusher\Auth\AuthTransports;
 use ArtisanBuild\Pusher\Config;
 use ArtisanBuild\Pusher\Runtimes\Auth\HttpAuth;
@@ -17,6 +18,8 @@ use ArtisanBuild\Pusher\Transports\WebSocketTransportHooks;
 // TODO: abstract this
 class Runtime
 {
+    private static ?AuthTransports $authorizers = null;
+
     // setup(PusherClass: {
     //     new (key: string, options: any): Pusher;
     //     ready(): void;
@@ -26,9 +29,23 @@ class Runtime
 
     public static function getAuthorizers(): AuthTransports
     {
-        return new AuthTransports([
-            'ajax' => new HttpAuth,
-        ]);
+        if (self::$authorizers === null) {
+            self::$authorizers = new AuthTransports([
+                'ajax' => new HttpAuth,
+            ]);
+        }
+
+        return self::$authorizers;
+    }
+
+    /**
+     * Register a custom auth transport.
+     *
+     * Useful for testing - register a mock transport without HTTP.
+     */
+    public static function registerAuthTransport(string $name, AuthTransport $transport): void
+    {
+        self::getAuthorizers()[$name] = $transport;
     }
 
     public static function getLocalStorage(): ?\ArrayAccess

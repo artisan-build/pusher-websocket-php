@@ -66,8 +66,15 @@ class Members
      */
     public function onSubscription(mixed $subscriptionData): void
     {
-        $this->members = $subscriptionData->presence->hash;
-        $this->count = $subscriptionData->presence->count;
+        // Handle both array and object access patterns
+        if (is_array($subscriptionData)) {
+            $presence = $subscriptionData['presence'] ?? [];
+            $this->members = is_array($presence) ? ($presence['hash'] ?? []) : (array) ($presence->hash ?? []);
+            $this->count = is_array($presence) ? ($presence['count'] ?? 0) : ($presence->count ?? 0);
+        } else {
+            $this->members = (array) ($subscriptionData->presence->hash ?? []);
+            $this->count = $subscriptionData->presence->count ?? 0;
+        }
         $this->me = $this->get($this->myID);
     }
 
@@ -76,22 +83,35 @@ class Members
      */
     public function addMember(mixed $memberData): ?object
     {
-        if ($this->get($memberData->user_id) === null) {
+        $userId = is_array($memberData) ? ($memberData['user_id'] ?? null) : ($memberData->user_id ?? null);
+        $userInfo = is_array($memberData) ? ($memberData['user_info'] ?? null) : ($memberData->user_info ?? null);
+
+        if ($userId === null) {
+            return null;
+        }
+
+        if ($this->get($userId) === null) {
             $this->count++;
         }
-        $this->members[$memberData->user_id] = $memberData->user_info;
+        $this->members[$userId] = $userInfo;
 
-        return $this->get($memberData->user_id);
+        return $this->get($userId);
     }
 
     /**
-     * Adds a member from the collection. For internal use only.
+     * Removes a member from the collection. For internal use only.
      */
     public function removeMember(mixed $memberData): ?object
     {
-        $member = $this->get($memberData->user_id);
+        $userId = is_array($memberData) ? ($memberData['user_id'] ?? null) : ($memberData->user_id ?? null);
+
+        if ($userId === null) {
+            return null;
+        }
+
+        $member = $this->get($userId);
         if ($member) {
-            unset($this->members[$memberData->user_id]);
+            unset($this->members[$userId]);
             $this->count--;
         }
 

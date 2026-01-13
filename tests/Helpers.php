@@ -6,6 +6,7 @@ namespace ArtisanBuild\Pusher\Tests;
 
 use ArtisanBuild\Pusher\Options;
 use ArtisanBuild\Pusher\Pusher;
+use ArtisanBuild\Pusher\Runtimes\Runtime;
 use React\EventLoop\Loop;
 
 /**
@@ -109,8 +110,13 @@ function getTestCredentials(): array
 // Load .env file when this file is included
 loadEnv();
 
+// Register the test auth transport (no HTTP, just signing)
+Runtime::registerAuthTransport('test', new TestAuth);
+
 /**
  * Create a Pusher client configured for testing.
+ *
+ * @param  bool  $withAuth  Enable auth using the 'test' transport (no HTTP, just signing)
  */
 function createTestClient(bool $withAuth = false): Pusher
 {
@@ -125,9 +131,10 @@ function createTestClient(bool $withAuth = false): Pusher
     );
 
     if ($withAuth) {
+        // Use the 'test' transport which generates valid signatures directly
+        // without needing an HTTP auth server
         $options->channelAuthorization = [
-            'endpoint' => getAuthEndpoint(),
-            'transport' => 'ajax',
+            'transport' => 'test',
         ];
     }
 
@@ -135,25 +142,36 @@ function createTestClient(bool $withAuth = false): Pusher
 }
 
 /**
- * Run the ReactPHP event loop for a specified duration.
+ * Run the ReactPHP event loop for a specified duration or until condition is met.
+ *
+ * @param  float  $timeout  Maximum time to run (seconds)
+ * @param  callable|null  $until  Optional condition callback - stops when returns true
+ * @param  float  $checkInterval  How often to check the condition (seconds)
  */
-function runEventLoop(float $timeout = 2.0): void
+function runEventLoop(float $timeout = 1.0, ?callable $until = null, float $checkInterval = 0.01): void
 {
     $loop = Loop::get();
 
+    // Always set up max timeout
     $loop->addTimer($timeout, function () use ($loop) {
         $loop->stop();
     });
 
-    $loop->run();
-}
+    // If we have a condition, check it periodically
+    if ($until !== null) {
+        /** @var \React\EventLoop\TimerInterface|null $timer */
+        $timer = null;
+        $timer = $loop->addPeriodicTimer($checkInterval, function () use ($loop, $until, &$timer) {
+            if ($until()) {
+                if ($timer !== null) {
+                    $loop->cancelTimer($timer);
+                }
+                $loop->stop();
+            }
+        });
+    }
 
-/**
- * Get the auth endpoint URL for testing.
- */
-function getAuthEndpoint(): string
-{
-    return (string) env('PUSHER_AUTH_ENDPOINT', 'http://127.0.0.1:8080/broadcasting/auth');
+    $loop->run();
 }
 
 /**

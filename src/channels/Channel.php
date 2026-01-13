@@ -13,6 +13,7 @@ use ArtisanBuild\Pusher\Logger;
 use ArtisanBuild\Pusher\Pusher;
 use ArtisanBuild\Pusher\Utils\UrlStore;
 use Exception;
+use React\EventLoop\Loop;
 
 /**
  * Provides base public channel interface with an event emitter.
@@ -137,23 +138,20 @@ class Channel extends EventsDispatcher
             new ChannelAuthorizationCallback(function (?Exception $error, ChannelAuthorizationData $data) {
                 if ($error) {
                     $this->subscriptionPending = false;
-                    // Why not bind to 'pusher:subscription_error' a level up, and log there?
-                    // Binding to this event would cause the warning about no callbacks being
-                    // bound (see constructor) to be suppressed, that's not what we want.
                     Logger::error($error->__toString());
-                    // TODO: Implement this event.
-                    throw new Exception('Not implemented');
-                    // $this->emit(
-                    //   'pusher:subscription_error',
-                    //   Object.assign(
-                    //     {},
-                    //     {
-                    //       type: 'AuthError',
-                    //       error: error.message
-                    //     },
-                    //     error instanceof Errors\HTTPAuthError ? { status: error.status } : {}
-                    //   )
-                    // );
+
+                    $errorData = [
+                        'type' => 'AuthError',
+                        'error' => $error->getMessage(),
+                    ];
+
+                    if ($error instanceof Errors\HTTPAuthError) {
+                        $errorData['status'] = $error->status;
+                    }
+
+                    // Defer error emission to next tick to allow bindings to be set up
+                    // This matches the async behavior of the JavaScript implementation
+                    Loop::futureTick(fn () => $this->emit('pusher:subscription_error', $errorData));
                 } else {
                     $this->pusher->send_event('pusher:subscribe', [
                         'auth' => $data->auth,
