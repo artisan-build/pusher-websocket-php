@@ -2,14 +2,17 @@ name: PHPStan
 
 on:
   push:
+    branches: [main]
     paths:
       - '**.php'
       - 'phpstan.neon.dist'
       - '.github/workflows/phpstan.yml'
+  pull_request:
+    branches: [main]
 
 jobs:
   phpstan:
-    name: phpstan
+    name: PHPStan
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -18,7 +21,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           coverage: none
 
       - name: Install composer dependencies
