@@ -141,7 +141,7 @@ class ConnectionManager extends Dispatcher
 
     private function startConnecting(): void
     {
-        $callback = function (mixed $error, mixed $handshake) use (&$callback): void {
+        $callback = function (mixed $error, mixed $handshake = null) use (&$callback): void {
             if ($error) {
                 $this->runner = $this->strategy->connect(0, $callback);
             } else {

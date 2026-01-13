@@ -4,68 +4,54 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher;
 
-use Closure;
-use RuntimeException;
-
 class Logger
 {
     public static function debug(mixed ...$args): void
     {
-        self::log(self::globalLog(...), $args);
+        if (Pusher::$logToConsole) {
+            self::output('DEBUG', $args);
+        }
     }
 
     public static function warn(mixed ...$args): void
     {
-        self::log(self::globalLogWarn(...), $args);
+        if (Pusher::$logToConsole) {
+            self::output('WARN', $args);
+        }
     }
 
     public static function error(mixed ...$args): void
     {
-        self::log(self::globalLogError(...), $args);
-    }
-
-    private static function globalLog(string $message): void
-    {
-        // if (global.console && global.console.log) {
-        //   global.console.log(message);
-        // }
-        throw new RuntimeException("Not Implemented Yet.\n\nMessage: {$message}");
-    }
-
-    private static function globalLogWarn(string $message): void
-    {
-        // if (global.console && global.console.warn) {
-        //   global.console.warn(message);
-        // } else {
-        //   this.globalLog(message);
-        // }
-        throw new RuntimeException("Not Implemented Yet.\n\nMessage: {$message}");
-    }
-
-    private static function globalLogError(string $message): void
-    {
-        // if (global.console && global.console.error) {
-        //   global.console.error(message);
-        // } else {
-        //   this.globalLogWarn(message);
-        // }
-        throw new RuntimeException("Not Implemented Yet.\n\nMessage: {$message}");
+        if (Pusher::$logToConsole) {
+            self::output('ERROR', $args);
+        }
     }
 
     /**
      * @param  array<int, mixed>  $args
      */
-    private static function log(
-        Closure $defaultLoggingFunction,
-        array $args,
-    ): void {
-        // var message = stringify.apply(this, arguments);
-        // if (Pusher.log) {
-        //   Pusher.log(message);
-        // } else if (Pusher.logToConsole) {
-        //   const log = defaultLoggingFunction.bind(this);
-        //   log(message);
-        // }
-        throw new RuntimeException('Not Implemented Yet.');
+    private static function output(string $level, array $args): void
+    {
+        $message = self::stringify($args);
+        fwrite(STDERR, "[Pusher {$level}] {$message}\n");
+    }
+
+    /**
+     * @param  array<int, mixed>  $args
+     */
+    private static function stringify(array $args): string
+    {
+        $parts = [];
+        foreach ($args as $arg) {
+            if (is_string($arg)) {
+                $parts[] = $arg;
+            } elseif (is_array($arg) || is_object($arg)) {
+                $parts[] = json_encode($arg);
+            } else {
+                $parts[] = (string) $arg;
+            }
+        }
+
+        return implode(' ', $parts);
     }
 }

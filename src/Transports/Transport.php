@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Transports;
 
+use ArtisanBuild\Pusher\Strategies\StrategyOptions;
+
 /**
  * Provides interface for transport connection instantiation.
  *
@@ -36,6 +38,18 @@ class Transport
         string $key,
         mixed $options
     ): TransportConnection {
+        // Convert StrategyOptions to TransportConnectionOptions if needed
+        if ($options instanceof StrategyOptions) {
+            $options = new TransportConnectionOptions(
+                timeline: $options->timeline,
+                activityTimeout: $options->timeout,
+                useTLS: $options->useTLS,
+                hostTLS: $options->hostTLS,
+                hostNonTLS: $options->hostNonTLS,
+                httpPath: $options->httpPath,
+            );
+        }
+
         return new TransportConnection($this->hooks, $name, $priority, $key, $options);
     }
 }

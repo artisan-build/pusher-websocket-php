@@ -7,10 +7,10 @@ namespace ArtisanBuild\Pusher;
 use ArtisanBuild\Pusher\Channels\Channel;
 use ArtisanBuild\Pusher\Channels\Channels;
 use ArtisanBuild\Pusher\Connection\ConnectionManager;
-// import AbstractRuntime from '../runtimes/interface';
-// import Runtime from 'runtime';
-// import Util from './util';
+use ArtisanBuild\Pusher\Connection\ConnectionManagerOptions;
+use ArtisanBuild\Pusher\Connection\Protocol\MessageTypes\PusherEvent;
 use ArtisanBuild\Pusher\Events\Dispatcher as EventsDispatcher;
+use ArtisanBuild\Pusher\Runtimes\Runtime;
 use ArtisanBuild\Pusher\Timeline\Timeline;
 use ArtisanBuild\Pusher\Timeline\TimelineLevel;
 use ArtisanBuild\Pusher\Timeline\TimelineOptions;
@@ -20,18 +20,7 @@ use ArtisanBuild\Pusher\Utils\Collections;
 use ArtisanBuild\Pusher\Utils\Factory;
 use ArtisanBuild\Pusher\Utils\Timers\PeriodicTimer;
 use Closure;
-use Exception;
 use RuntimeException;
-
-// import { defineTransport } from './strategies/strategy_builder';
-// import ConnectionManager from './connection/connection_manager';
-// import ConnectionManagerOptions from './connection/connection_manager_options';
-// import { PeriodicTimer } from './utils/timers';
-// import Logger from './logger';
-// import UrlStore from 'core/utils/url_store';
-// import { Config, getConfig } from './config';
-// import StrategyOptions from './strategies/strategy_options';
-// import UserFacade from './user';
 
 class Pusher
 {
@@ -86,11 +75,11 @@ class Pusher
 
     public Timeline $timeline;
 
-    public TimelineSender $timelineSender;
+    public ?TimelineSender $timelineSender = null;
 
     public ConnectionManager $connection;
 
-    public PeriodicTimer $timelineSenderTimer;
+    public ?PeriodicTimer $timelineSenderTimer = null;
 
     public UserFacade $user;
 
@@ -111,64 +100,77 @@ class Pusher
             params: $this->config->timelineParams || [], // TODO: might fall back to object.
             limit: 50,
             level: TimelineLevel::INFO,
-            version: (new Defaults)->VERSION,
+            version: Defaults::VERSION,
         ));
 
         if ($this->config->enableStats) {
             $this->timelineSender = Factory::createTimelineSender($this->timeline, new TimelineSenderOptions(
                 host: $this->config->statsHost,
-                // path: '/timeline/v2/' . Runtime.TimelineTransport.name
-                // @see https://github.com/pusher/pusher-js/blob/master/src/runtimes/web/runtime.ts
-                // TODO: Removed Runtime.setup(Pusher) from original source.
             ));
         }
 
-        // var getStrategy = (options: StrategyOptions) => {
-        //   return Runtime.getDefaultStrategy(this.config, options, defineTransport);
-        // };
+        $getStrategy = fn (array $strategyOptions) => Runtime::getDefaultStrategy($this->config, $strategyOptions);
 
-        // this.connection = Factory.createConnectionManager(this.key, {
-        //   getStrategy: getStrategy,
-        //   timeline: this.timeline,
-        //   activityTimeout: this.config.activityTimeout,
-        //   pongTimeout: this.config.pongTimeout,
-        //   unavailableTimeout: this.config.unavailableTimeout,
-        //   useTLS: Boolean(this.config.useTLS)
-        // });
+        $this->connection = Factory::createConnectionManager($this->key, new ConnectionManagerOptions(
+            timeline: $this->timeline,
+            getStrategy: $getStrategy,
+            activityTimeout: $this->config->activityTimeout,
+            pongTimeout: $this->config->pongTimeout,
+            unavailableTimeout: $this->config->unavailableTimeout,
+            useTLS: (bool) $this->config->useTLS,
+        ));
 
-        // this.connection.bind('connected', () => {
-        //   this.subscribeAll();
-        //   if (this.timelineSender) {
-        //     this.timelineSender.send(this.connection.isUsingTLS());
-        //   }
-        // });
+        $this->connection->bind('connected', function (): void {
+            $this->subscribeAll();
+            if (isset($this->timelineSender)) {
+                $this->timelineSender->send($this->connection->isUsingTLS());
+            }
+        });
 
-        // this.connection.bind('message', event => {
-        //   var eventName = event.event;
-        //   var internal = eventName.indexOf('pusher_internal:') === 0;
-        //   if (event.channel) {
-        //     var channel = this.channel(event.channel);
-        //     if (channel) {
-        //       channel.handleEvent(event);
-        //     }
-        //   }
-        //   // Emit globally [deprecated]
-        //   if (!internal) {
-        //     this.global_emitter.emit(event.event, event.data);
-        //   }
-        // });
-        // this.connection.bind('connecting', () => {
-        //   this.channels.disconnect();
-        // });
-        // this.connection.bind('disconnected', () => {
-        //   this.channels.disconnect();
-        // });
-        // this.connection.bind('error', err => {
-        //   Logger.warn(err);
-        // });
+        $this->connection->bind('message', function (mixed $event): void {
+            // Event is already a PusherEvent object from Connection::bindListeners
+            if ($event instanceof PusherEvent) {
+                $pusherEvent = $event;
+            } else {
+                // Handle legacy array format
+                $pusherEvent = new PusherEvent(
+                    event: $event['event'] ?? '',
+                    channel: $event['channel'] ?? null,
+                    data: $event['data'] ?? null,
+                    user_id: $event['user_id'] ?? null,
+                );
+            }
 
-        // Pusher.instances.push(this);
-        // this.timeline.info({ instances: Pusher.instances.length });
+            $eventName = $pusherEvent->event;
+            $internal = str_starts_with($eventName, 'pusher_internal:');
+            $channelName = $pusherEvent->channel;
+
+            if ($channelName) {
+                $channel = $this->channel($channelName);
+                if ($channel) {
+                    $channel->handleEvent($pusherEvent);
+                }
+            }
+            // Emit globally [deprecated]
+            if (! $internal) {
+                $this->global_emitter->emit($eventName, $pusherEvent->data);
+            }
+        });
+
+        $this->connection->bind('connecting', function (): void {
+            $this->channels->disconnect();
+        });
+
+        $this->connection->bind('disconnected', function (): void {
+            $this->channels->disconnect();
+        });
+
+        $this->connection->bind('error', function (mixed $err): void {
+            Logger::warn($err);
+        });
+
+        Pusher::$instances[] = $this;
+        $this->timeline->info(['instances' => count(Pusher::$instances)]);
 
         $this->user = new UserFacade($this);
 
@@ -259,14 +261,9 @@ class Pusher
 
     public function subscribeAll(): void
     {
-        // TODO: Implement this method.
-        // var channelName;
-        // for (channelName in this.channels.channels) {
-        //   if (this.channels.channels.hasOwnProperty(channelName)) {
-        //     this.subscribe(channelName);
-        //   }
-        // }
-        throw new Exception('Not implemented');
+        foreach ($this->channels->all() as $channel) {
+            $this->subscribe($channel->name);
+        }
     }
 
     public function subscribe(string $channel_name): Channel
@@ -299,7 +296,7 @@ class Pusher
 
     public function send_event(string $event_name, mixed $data, ?string $channel = null): mixed
     {
-        return $this->connection->send_event($event_name, $data, $channel);
+        return $this->connection->sendEvent($event_name, $data, $channel);
     }
 
     public function shouldUseTLS(): bool

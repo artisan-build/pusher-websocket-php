@@ -21,58 +21,54 @@ class CallbackRegistry
      */
     public function get(string $name): array
     {
-        return $this->callbacks[self::prefix($name)];
+        return $this->callbacks[self::prefix($name)] ?? [];
     }
 
     public function add(string $name, Closure $callback, mixed $context): void
     {
         $prefixedEventName = self::prefix($name);
-        $this->callbacks[$prefixedEventName] ??= [];
-        $this->callbacks[$prefixedEventName][] = new Callback(
+        $existing = $this->callbacks[$prefixedEventName] ?? [];
+        $existing[] = new Callback(
             fn: $callback,
             context: $context
         );
+        $this->callbacks[$prefixedEventName] = $existing;
     }
 
     public function remove(?string $name = null, ?Closure $callback = null, mixed $context = null): void
     {
-        // if (!name && !callback && !context) {
-        //   this._callbacks = {};
-        //   return;
-        // }
+        if ($name === null && $callback === null && $context === null) {
+            $this->callbacks = new CallbackTable;
 
-        // var names = name ? [prefix(name)] : Collections.keys(this._callbacks);
+            return;
+        }
 
-        // if (callback || context) {
-        //   this.removeCallback(names, callback, context);
-        // } else {
-        //   this.removeAllCallbacks(names);
-        // }
+        $names = $name !== null ? [self::prefix($name)] : Collections::keys($this->callbacks);
+
+        if ($callback !== null || $context !== null) {
+            $this->removeCallback($names, $callback, $context);
+        } else {
+            $this->removeAllCallbacks($names);
+        }
     }
 
     /**
      * @param  string[]  $names
      */
-    private function removeCallback(array $names, Closure $callback, mixed $context): void
+    private function removeCallback(array $names, ?Closure $callback, mixed $context): void
     {
-        // Collections.apply(
-        //   names,
-        //   function(name) {
-        //     this._callbacks[name] = Collections.filter(
-        //       this._callbacks[name] || [],
-        //       function(binding) {
-        //         return (
-        //           (callback && callback !== binding.fn) ||
-        //           (context && context !== binding.context)
-        //         );
-        //       }
-        //     );
-        //     if (this._callbacks[name].length === 0) {
-        //       delete this._callbacks[name];
-        //     }
-        //   },
-        //   this
-        // );
+        foreach ($names as $eventName) {
+            $this->callbacks[$eventName] = Collections::filter(
+                $this->callbacks[$eventName] ?? [],
+                function (Callback $binding) use ($callback, $context): bool {
+                    return ($callback !== null && $callback !== $binding->fn) ||
+                           ($context !== null && $context !== $binding->context);
+                }
+            );
+            if (count($this->callbacks[$eventName]) === 0) {
+                unset($this->callbacks[$eventName]);
+            }
+        }
     }
 
     /**
@@ -80,13 +76,9 @@ class CallbackRegistry
      */
     private function removeAllCallbacks(array $names): void
     {
-        //   Collections.apply(
-        //     names,
-        //     function(name) {
-        //       delete this._callbacks[name];
-        //     },
-        //     this
-        //   );
+        foreach ($names as $eventName) {
+            unset($this->callbacks[$eventName]);
+        }
     }
 
     public static function prefix(string $name): string

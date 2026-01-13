@@ -89,6 +89,25 @@ class TransportConnection extends Dispatcher
     }
 
     /**
+     * Initializes the transport.
+     */
+    public function initialize(): void
+    {
+        if ($this->state !== 'new') {
+            return;
+        }
+
+        if ($this->hooks->isInitialized()) {
+            $this->changeState('initialized');
+            $this->emit('initialized');
+        } else {
+            // Some transports need to load external resources
+            $this->changeState('initializing');
+            // After resources are loaded, changeState to 'initialized' and emit
+        }
+    }
+
+    /**
      * Tries to establish a connection.
      */
     public function connect(): bool
@@ -158,10 +177,8 @@ class TransportConnection extends Dispatcher
 
     private function onOpen(): void
     {
-        if ($this->hooks->beforeOpen !== null) {
-            $path = $this->hooks->getUrls()->getPath($this->key, $this->options);
-            $this->hooks->beforeOpen($this->socket, $path ?? '');
-        }
+        $path = $this->hooks->getUrls()->getPath($this->key, $this->options);
+        $this->hooks->beforeOpen($this->socket, $path ?? '');
         $this->changeState('open');
         if ($this->socket) {
             $this->socket->onopen = null;

@@ -18,10 +18,16 @@ class Protocol
      *
      * Throws errors when messages are not parseable.
      */
-    public static function decodeMessage(array $messageEvent): PusherEvent
+    public static function decodeMessage(string|array $messageEvent): PusherEvent
     {
         try {
-            $messageData = json_decode($messageEvent['data'], true);
+            // Handle string messages (from WebSocket) or array messages (from other sources)
+            if (is_string($messageEvent)) {
+                $messageData = json_decode($messageEvent, true);
+            } else {
+                $messageData = json_decode($messageEvent['data'], true);
+            }
+
             $pusherEventData = $messageData['data'] ?? null;
 
             if (is_string($pusherEventData)) {
@@ -41,7 +47,7 @@ class Protocol
             throw new \RuntimeException(json_encode([
                 'type' => 'MessageParseError',
                 'error' => $e->getMessage(),
-                'data' => $messageEvent['data'] ?? null,
+                'data' => is_string($messageEvent) ? $messageEvent : ($messageEvent['data'] ?? null),
             ]));
         }
     }
@@ -63,7 +69,7 @@ class Protocol
      *
      * Returns an Action with action-specific properties.
      */
-    public static function processHandshake(array $messageEvent): Action
+    public static function processHandshake(string|array $messageEvent): Action
     {
         $message = self::decodeMessage($messageEvent);
 

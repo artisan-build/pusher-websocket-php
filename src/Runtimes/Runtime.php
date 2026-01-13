@@ -5,8 +5,14 @@ declare(strict_types=1);
 namespace ArtisanBuild\Pusher\Runtimes;
 
 use ArtisanBuild\Pusher\Auth\AuthTransports;
+use ArtisanBuild\Pusher\Config;
 use ArtisanBuild\Pusher\Runtimes\Auth\HttpAuth;
+use ArtisanBuild\Pusher\Strategies\Strategy;
+use ArtisanBuild\Pusher\Strategies\StrategyOptions;
+use ArtisanBuild\Pusher\Strategies\TransportStrategy;
 use ArtisanBuild\Pusher\Timeline\TimelineTransport;
+use ArtisanBuild\Pusher\Transports\Transport;
+use ArtisanBuild\Pusher\Transports\WebSocketTransportHooks;
 
 // TODO: abstract this
 class Runtime
@@ -36,6 +42,28 @@ class Runtime
     {
         // TODO: return actual transports table
         return [];
+    }
+
+    /**
+     * Returns the default connection strategy.
+     */
+    public static function getDefaultStrategy(Config $config, array $options): Strategy
+    {
+        $wsTransport = new Transport(new WebSocketTransportHooks);
+
+        $strategyOptions = new StrategyOptions;
+        $strategyOptions->key = $options['key'] ?? '';
+        $strategyOptions->timeline = $options['timeline'] ?? null;
+        $strategyOptions->useTLS = $options['useTLS'] ?? $config->useTLS;
+        $strategyOptions->hostNonTLS = $config->wsHost.':'.$config->wsPort;
+        $strategyOptions->hostTLS = $config->wsHost.':'.$config->wssPort;
+
+        return new TransportStrategy(
+            name: 'ws',
+            priority: 3,
+            transport: $wsTransport,
+            options: $strategyOptions,
+        );
     }
 
     public static TimelineTransport $TimelineTransport;

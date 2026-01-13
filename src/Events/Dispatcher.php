@@ -93,9 +93,7 @@ class Dispatcher
 
         if ($callbacks && count($callbacks) > 0) {
             for ($i = 0; $i < count($callbacks); $i++) {
-                // #UNSURE
-                // $callbacks[$i]['fn'].apply(callbacks[i].context || global, args);
-                $callbacks[$i]['fn'](...$args);
+                ($callbacks[$i]->fn)(...$args);
             }
         } elseif ($this->failThrough) {
             ($this->failThrough)($eventName, $data);

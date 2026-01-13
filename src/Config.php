@@ -151,13 +151,12 @@ class Config
 
     public function shouldUseTLS(Options $opts): bool
     {
-        // TODO: How to replace Runtime?
-        // if (Runtime.getProtocol() === 'https:') {
-        //   return true;
-        // } else if ($opts->forceTLS === false) {
-        //   return false;
-        // }
-        return true;
+        if ($opts->forceTLS === false) {
+            return false;
+        }
+
+        // Default to TLS
+        return $opts->forceTLS ?? true;
     }
 
     // if enableStats is set take the value

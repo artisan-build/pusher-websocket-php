@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ArtisanBuild\Pusher\Utils;
 
 use Closure;
-use Exception;
 
 class Collections
 {
@@ -96,12 +95,19 @@ class Collections
      */
     public static function objectApply(object $object, Closure $f): void
     {
-        throw new Exception('Not implemented');
-        // for (var key in object) {
-        //   if (Object.prototype.hasOwnProperty.call(object, key)) {
-        //     f(object[key], key, object);
-        //   }
-        // }
+        // Handle objects with public container (like ChannelTable)
+        if (property_exists($object, 'container') && is_array($object->container)) {
+            foreach ($object->container as $key => $value) {
+                $f($value, $key, $object);
+            }
+
+            return;
+        }
+
+        // Handle generic objects
+        foreach (get_object_vars($object) as $key => $value) {
+            $f($value, $key, $object);
+        }
     }
 
     // /** Return a list of objects own proerty keys
@@ -123,12 +129,12 @@ class Collections
      */
     public static function values(object $object): array
     {
-        throw new Exception('Not implemented');
-        // var values = [];
-        // objectApply(object, function(value) {
-        //   values.push(value);
-        // });
-        // return values;
+        $values = [];
+        self::objectApply($object, function ($value) use (&$values) {
+            $values[] = $value;
+        });
+
+        return $values;
     }
 
     // /** Applies a function f to all elements of an array.
@@ -198,20 +204,14 @@ class Collections
      */
     public static function filter(array $array, Closure $test): array
     {
-        // test =
-        //   test ||
-        //   function(value) {
-        //     return !!value;
-        //   };
+        $result = [];
+        foreach ($array as $i => $value) {
+            if ($test($value, $i, $array, $result)) {
+                $result[] = $value;
+            }
+        }
 
-        // var result = [];
-        // for (var i = 0; i < array.length; i++) {
-        //   if (test(array[i], i, array, result)) {
-        //     result.push(array[i]);
-        //   }
-        // }
-        // return result;
-        throw new Exception('Not implemented');
+        return $result;
     }
 
     // /** Filters properties of the object using a test function.
