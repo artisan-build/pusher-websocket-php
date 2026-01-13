@@ -18,19 +18,28 @@ uses(TestCase::class)->in(__DIR__);
 |--------------------------------------------------------------------------
 |
 | Integration tests require a running Pusher-compatible WebSocket server
-| (Soketi, Reverb, etc). If no server is available, tests will be skipped.
+| (Soketi, Reverb, etc). These tests are excluded from `composer test`
+| and must be run explicitly with `composer test:integration`.
 |
 | Configure via environment variables in .env or system:
 |   PUSHER_HOST, PUSHER_PORT, PUSHER_APP_ID, PUSHER_APP_KEY, PUSHER_APP_SECRET
 |
+| Commands:
+|   composer test             - Unit/Feature tests only (no server needed)
+|   composer test:integration - Integration tests (server required)
+|   composer test:all         - All tests
+|
 */
 
 uses()
-    ->beforeEach(function () {
+    ->beforeAll(function () {
         if (! ensurePusherServerIsRunning()) {
-            $this->markTestSkipped(
-                'No Pusher-compatible server running. Check .env or set PUSHER_HOST/PUSHER_PORT.'
+            throw new RuntimeException(
+                "Integration tests require a running Pusher-compatible server.\n".
+                "Configure PUSHER_HOST and PUSHER_PORT in .env or environment.\n".
+                "Default: 127.0.0.1:6001"
             );
         }
     })
+    ->group('integration')
     ->in('Integration');

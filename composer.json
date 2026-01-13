@@ -53,7 +53,9 @@
     },
     "scripts": {
         "stan": "vendor/bin/phpstan analyse",
-        "test": "vendor/bin/pest",
+        "test": "vendor/bin/pest --exclude-group=integration",
+        "test:integration": "vendor/bin/pest --group=integration",
+        "test:all": "vendor/bin/pest",
         "test:coverage": "XDEBUG_MODE=coverage vendor/bin/pest --coverage --min=66",
         "test:types": "vendor/bin/pest --type-coverage --min=100",
         "lint": "vendor/bin/pint",
