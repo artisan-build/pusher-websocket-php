@@ -49,7 +49,7 @@ class WebSocketPrioritizedCachedStrategy implements Strategy
         $cacheSkipCount = $info && isset($info['cacheSkipCount']) ? $info['cacheSkipCount'] : 0;
 
         $strategies = [$this->strategy];
-        if ($info && $info['timestamp'] + $this->ttl >= self::now()) {
+        if ($info && self::now() <= $info['timestamp'] + $this->ttl) {
             $transport = $this->transports[$info['transport']] ?? null;
             if ($transport) {
                 if (in_array($info['transport'], ['ws', 'wss'], true) || $cacheSkipCount > 3) {
@@ -105,7 +105,8 @@ class WebSocketPrioritizedCachedStrategy implements Strategy
 
         $runner = array_pop($strategies)->connect($minPriority, $cb);
 
-        return new class($runner, $minPriority) implements StrategyRunner {
+        return new class($runner, $minPriority) implements StrategyRunner
+        {
             public function __construct(
                 private ?StrategyRunner &$runner,
                 private int &$minPriority,

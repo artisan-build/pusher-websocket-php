@@ -38,7 +38,8 @@ class DelayedStrategy implements Strategy
             $runner = $strategy->connect($minPriority, $callback);
         });
 
-        return new class($timer, $runner, $minPriority) implements StrategyRunner {
+        return new class($timer, $runner, $minPriority) implements StrategyRunner
+        {
             public function __construct(
                 private OneOffTimer $timer,
                 private ?StrategyRunner &$runner,

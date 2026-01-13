@@ -101,7 +101,8 @@ class SequentialStrategy implements Strategy
             $tryNextStrategy
         );
 
-        return new class($runner, $minPriority) implements StrategyRunner {
+        return new class($runner, $minPriority) implements StrategyRunner
+        {
             public function __construct(
                 private ?StrategyRunner &$runner,
                 private int &$minPriority,
@@ -149,7 +150,8 @@ class SequentialStrategy implements Strategy
             $callback($error, $handshake);
         });
 
-        return new class($timer, $runner) implements StrategyRunner {
+        return new class($timer, $runner) implements StrategyRunner
+        {
             public function __construct(
                 private ?OneOffTimer $timer,
                 private StrategyRunner $runner,

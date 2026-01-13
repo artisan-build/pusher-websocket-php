@@ -6,6 +6,7 @@ namespace ArtisanBuild\Pusher\Strategies;
 
 interface StrategyRunner
 {
-  public function forceMinPriority(int $number): void;
-  public function abort(): void;
+    public function forceMinPriority(int $number): void;
+
+    public function abort(): void;
 }

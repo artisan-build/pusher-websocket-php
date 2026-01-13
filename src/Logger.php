@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher;
 
-use ArtisanBuild\Pusher\Utils\Collections;
 use Closure;
 use RuntimeException;
 

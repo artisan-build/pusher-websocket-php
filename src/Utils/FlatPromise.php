@@ -67,12 +67,16 @@ class FlatPromise
      */
     public static function create(): array
     {
-        $promise = new self();
+        $promise = new self;
 
         return [
             'promise' => $promise,
-            'resolve' => function (mixed $value) use ($promise): void { $promise->resolve($value); },
-            'reject' => function (mixed $error) use ($promise): void { $promise->reject($error); },
+            'resolve' => function (mixed $value) use ($promise): void {
+                $promise->resolve($value);
+            },
+            'reject' => function (mixed $error) use ($promise): void {
+                $promise->reject($error);
+            },
         ];
     }
 }

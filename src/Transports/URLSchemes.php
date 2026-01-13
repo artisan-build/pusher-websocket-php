@@ -10,7 +10,8 @@ class URLSchemes
 {
     public static function ws(): URLScheme
     {
-        return new class implements URLScheme {
+        return new class implements URLScheme
+        {
             public function getInitial(string $key, mixed $params): string
             {
                 $path = ($params->httpPath ?? '').URLSchemes::getGenericPath($key, 'flash=false');
@@ -27,7 +28,8 @@ class URLSchemes
 
     public static function http(): URLScheme
     {
-        return new class implements URLScheme {
+        return new class implements URLScheme
+        {
             public function getInitial(string $key, mixed $params): string
             {
                 $path = ($params->httpPath ?? '/pusher').URLSchemes::getGenericPath($key);
@@ -44,7 +46,8 @@ class URLSchemes
 
     public static function sockjs(): URLScheme
     {
-        return new class implements URLScheme {
+        return new class implements URLScheme
+        {
             public function getInitial(string $key, mixed $params): string
             {
                 return URLSchemes::getGenericURL('http', $params, $params->httpPath ?? '/pusher');

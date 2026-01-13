@@ -47,9 +47,9 @@ class Runtime
     // getNetwork(): Reachability;
 
     // getDefaultStrategy(
-        // config: Config,
-        // options: StrategyOptions,
-        // defineTransport: Function
+    // config: Config,
+    // options: StrategyOptions,
+    // defineTransport: Function
     // ): Strategy;
 
     // Transports: TransportsTable;

@@ -45,7 +45,7 @@ class StrategyBuilder
             );
         }
 
-        return new UnsupportedStrategyImpl();
+        return new UnsupportedStrategyImpl;
     }
 }
 
@@ -62,9 +62,10 @@ class UnsupportedStrategyImpl implements Strategy
     public function connect(int $minPriority, Closure $callback): StrategyRunner
     {
         // Defer the callback
-        $callback(new UnsupportedStrategy());
+        $callback(new UnsupportedStrategy);
 
-        return new class implements StrategyRunner {
+        return new class implements StrategyRunner
+        {
             public function abort(): void {}
 
             public function forceMinPriority(int $number): void {}

@@ -22,7 +22,7 @@ class TransportManager
 
     public function __construct(?TransportManagerOptions $options = null)
     {
-        $this->options = $options ?? new TransportManagerOptions();
+        $this->options = $options ?? new TransportManagerOptions;
         $this->livesLeft = $this->options->lives ?? INF;
     }
 

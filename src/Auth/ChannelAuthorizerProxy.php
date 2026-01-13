@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Auth;
 
-use ArtisanBuild\Pusher\Auth\Options\ChannelAuthorizationCallback;
-use ArtisanBuild\Pusher\Auth\Options\ChannelAuthorizationHandler;
 use ArtisanBuild\Pusher\Auth\Options\ChannelAuthorizationRequestParams;
 use ArtisanBuild\Pusher\Auth\Options\InternalAuthOptions;
 use ArtisanBuild\Pusher\Pusher;

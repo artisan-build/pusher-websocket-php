@@ -7,6 +7,7 @@ namespace ArtisanBuild\Pusher;
 readonly class Defaults
 {
     public const string VERSION = '7.0.3';
+
     public const int PROTOCOL = 7;
 
     public function __construct(

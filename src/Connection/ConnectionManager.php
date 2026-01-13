@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ArtisanBuild\Pusher\Connection;
 
 use ArtisanBuild\Pusher\Connection\Handshake\HandshakePayload;
-use ArtisanBuild\Pusher\Connection\Protocol\Action;
 use ArtisanBuild\Pusher\Events\Dispatcher;
 use ArtisanBuild\Pusher\Logger;
 use ArtisanBuild\Pusher\Strategies\Strategy;

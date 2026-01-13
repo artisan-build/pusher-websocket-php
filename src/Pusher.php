@@ -6,16 +6,16 @@ namespace ArtisanBuild\Pusher;
 
 use ArtisanBuild\Pusher\Channels\Channel;
 use ArtisanBuild\Pusher\Channels\Channels;
-use ArtisanBuild\Pusher\Events\Dispatcher as EventsDispatcher;
+use ArtisanBuild\Pusher\Connection\ConnectionManager;
 // import AbstractRuntime from '../runtimes/interface';
 // import Runtime from 'runtime';
 // import Util from './util';
+use ArtisanBuild\Pusher\Events\Dispatcher as EventsDispatcher;
 use ArtisanBuild\Pusher\Timeline\Timeline;
 use ArtisanBuild\Pusher\Timeline\TimelineLevel;
 use ArtisanBuild\Pusher\Timeline\TimelineOptions;
 use ArtisanBuild\Pusher\Timeline\TimelineSender;
 use ArtisanBuild\Pusher\Timeline\TimelineSenderOptions;
-use ArtisanBuild\Pusher\Connection\ConnectionManager;
 use ArtisanBuild\Pusher\Utils\Collections;
 use ArtisanBuild\Pusher\Utils\Factory;
 use ArtisanBuild\Pusher\Utils\Timers\PeriodicTimer;

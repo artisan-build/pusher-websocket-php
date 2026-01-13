@@ -69,7 +69,8 @@ class BestConnectedEverStrategy implements Strategy
             ];
         }
 
-        return new class($runners) implements StrategyRunner {
+        return new class($runners) implements StrategyRunner
+        {
             public function __construct(private array &$runners) {}
 
             public function abort(): void

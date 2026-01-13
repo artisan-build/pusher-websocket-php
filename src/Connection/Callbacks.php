@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Connection;
 
-use ArtisanBuild\Pusher\Connection\Handshake\HandshakePayload;
-use ArtisanBuild\Pusher\Connection\Protocol\Action;
 use Closure;
 
 class ErrorCallbacks

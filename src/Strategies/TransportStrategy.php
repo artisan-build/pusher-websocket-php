@@ -42,11 +42,11 @@ class TransportStrategy implements Strategy
     public function connect(int $minPriority, Closure $callback): StrategyRunner
     {
         if (! $this->isSupported()) {
-            return self::failAttempt(new UnsupportedStrategy(), $callback);
+            return self::failAttempt(new UnsupportedStrategy, $callback);
         }
 
         if ($this->priority < $minPriority) {
-            return self::failAttempt(new TransportPriorityTooLow(), $callback);
+            return self::failAttempt(new TransportPriorityTooLow, $callback);
         }
 
         $connected = false;
@@ -100,7 +100,8 @@ class TransportStrategy implements Strategy
 
         $strategy = $this;
 
-        return new class($connected, $unbindListeners, $handshake, $transport, $strategy) implements StrategyRunner {
+        return new class($connected, $unbindListeners, $handshake, $transport, $strategy) implements StrategyRunner
+        {
             public function __construct(
                 private bool &$connected,
                 private Closure $unbindListeners,
@@ -144,7 +145,8 @@ class TransportStrategy implements Strategy
         // Util::defer(fn() => $callback($error));
         $callback($error);
 
-        return new class implements StrategyRunner {
+        return new class implements StrategyRunner
+        {
             public function abort(): void {}
 
             public function forceMinPriority(int $number): void {}

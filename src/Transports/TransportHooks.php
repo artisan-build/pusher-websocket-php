@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Transports;
 
-use Closure;
-
 interface TransportHooks
 {
     public function getFile(): ?string;
