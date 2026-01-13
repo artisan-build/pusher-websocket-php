@@ -4,41 +4,56 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Tests;
 
-use Throwable;
+/**
+ * Get an environment variable with a default fallback.
+ */
+function env(string $key, mixed $default = null): mixed
+{
+    $value = getenv($key);
+
+    if ($value === false) {
+        return $default;
+    }
+
+    return $value;
+}
 
 /**
- * Check if a Reverb/Pusher-compatible WebSocket server is running.
+ * Check if a Pusher-compatible WebSocket server is running.
  *
  * @param  string  $host  The host to check (default: 127.0.0.1)
- * @param  int  $port  The port to check (default: 8080)
+ * @param  int  $port  The port to check (default: 6001)
  * @param  int  $timeout  Connection timeout in seconds (default: 1)
  */
 function ensureReverbIsRunning(
     string $host = '127.0.0.1',
-    int $port = 8080,
+    int $port = 6001,
     int $timeout = 1
 ): bool {
-    try {
-        $socket = @fsockopen($host, $port, $errno, $errstr, $timeout);
-        if ($socket) {
-            fclose($socket);
+    $host = env('PUSHER_HOST', $host);
+    $port = (int) env('PUSHER_PORT', $port);
 
-            return true;
-        }
-    } catch (Throwable) {
+    set_error_handler(fn () => true);
+    $socket = fsockopen($host, $port, $errno, $errstr, $timeout);
+    restore_error_handler();
+
+    if ($socket) {
+        fclose($socket);
+
+        return true;
     }
 
     return false;
 }
 
 /**
- * Get the Reverb WebSocket URL for testing.
+ * Get the WebSocket URL for testing.
  */
-function getReverbUrl(): string
+function getWebSocketUrl(): string
 {
-    $host = env('REVERB_HOST', '127.0.0.1');
-    $port = env('REVERB_PORT', 8080);
-    $scheme = env('REVERB_SCHEME', 'ws');
+    $host = env('PUSHER_HOST', '127.0.0.1');
+    $port = env('PUSHER_PORT', '6001');
+    $scheme = env('PUSHER_SCHEME', 'ws');
 
     return "{$scheme}://{$host}:{$port}";
 }
@@ -51,9 +66,9 @@ function getReverbUrl(): string
 function getTestCredentials(): array
 {
     return [
-        'app_id' => env('REVERB_APP_ID', 'app-id'),
-        'key' => env('REVERB_APP_KEY', 'app-key'),
-        'secret' => env('REVERB_APP_SECRET', 'app-secret'),
-        'cluster' => env('REVERB_CLUSTER', 'mt1'),
+        'app_id' => (string) env('PUSHER_APP_ID', 'app-id'),
+        'key' => (string) env('PUSHER_APP_KEY', 'app-key'),
+        'secret' => (string) env('PUSHER_APP_SECRET', 'app-secret'),
+        'cluster' => (string) env('PUSHER_CLUSTER', 'mt1'),
     ];
 }

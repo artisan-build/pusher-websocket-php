@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace ArtisanBuild\Pusher\Auth;
 
 use ArrayAccess;
-use Illuminate\Contracts\Support\Arrayable;
 
-class AuthTransports implements Arrayable, ArrayAccess
+class AuthTransports implements ArrayAccess
 {
     /**
      * @param  array<string, AuthTransport>  $transports

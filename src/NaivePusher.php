@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher;
 
-use Illuminate\Support\Str;
 use Ratchet\RFC6455\Messaging\Message;
 use React\Promise\Deferred;
 
@@ -63,7 +62,7 @@ class NaivePusher
     ): string {
         $data = ! empty($data) ? json_encode($data) : null;
 
-        if (! $auth && Str::startsWith($channel, ['private-', 'presence-'])) {
+        if (! $auth && (str_starts_with($channel, 'private-') || str_starts_with($channel, 'presence-'))) {
             // $auth = validAuth($this->connection->socketId(), $channel, $data);
         }
 

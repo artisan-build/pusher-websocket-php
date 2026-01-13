@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use function ArtisanBuild\Pusher\Tests\getReverbUrl;
 use function ArtisanBuild\Pusher\Tests\getTestCredentials;
+use function ArtisanBuild\Pusher\Tests\getWebSocketUrl;
 
 describe('Pusher WebSocket Connection', function () {
     it('can establish a connection to the server', function () {
         $credentials = getTestCredentials();
-        $url = getReverbUrl();
+        $url = getWebSocketUrl();
 
         // TODO: Once the Pusher client is functional, test actual connection
         // $pusher = new Pusher($credentials['key'], [
