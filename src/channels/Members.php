@@ -4,57 +4,49 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Channels;
 
-use ArtisanBuild\Pusher\Utils\Collections;
 use Closure;
 
 /**
- * Represents a collection of members of a presence channel.
+ * Represents a collection of members in a presence channel.
  */
 class Members
 {
-    public array $members;
+    /** @var array<string, array|null> Map of user IDs to user info */
+    public array $members = [];
 
-    public int $count;
+    public int $count = 0;
 
-    public mixed $myID;
+    public ?string $myID = null;
 
-    public mixed $me;
+    public ?Member $me = null;
 
-    public function __construct()
+    /**
+     * Returns member info for the given ID.
+     */
+    public function get(string $id): ?Member
     {
-        $this->reset();
+        if (array_key_exists($id, $this->members)) {
+            return new Member(
+                id: $id,
+                info: $this->members[$id],
+            );
+        }
+
+        return null;
     }
 
     /**
-     * Returns member's info for given id.
-     *
-     * Resulting object containts two fields - id and info.
+     * Iterates over each member in the collection.
      */
-    public function get(string $id): ?object
+    public function each(Closure $callback): void
     {
-        if (array_key_exists($id, $this->members)) {
-            return (object) [
-                'id' => $id,
-                'info' => $this->members[$id],
-            ];
-        } else {
-            return null;
+        foreach ($this->members as $id => $info) {
+            $callback(new Member(id: $id, info: $info));
         }
     }
 
     /**
-     * Calls back for each member in unspecified order.
-     */
-    public function each(Closure $callback): void
-    {
-        Collections::objectApply(
-            (object) $this->members,
-            fn (mixed $member, mixed $id): mixed => $callback($this->get((string) $id)),
-        );
-    }
-
-    /**
-     * Updates the id for connected member. For internal use only.
+     * Sets the current user's ID. For internal use only.
      */
     public function setMyID(string $id): void
     {
@@ -64,54 +56,36 @@ class Members
     /**
      * Handles subscription data. For internal use only.
      */
-    public function onSubscription(mixed $subscriptionData): void
+    public function onSubscription(PresenceData $data): void
     {
-        // Handle both array and object access patterns
-        if (is_array($subscriptionData)) {
-            $presence = $subscriptionData['presence'] ?? [];
-            $this->members = is_array($presence) ? ($presence['hash'] ?? []) : (array) ($presence->hash ?? []);
-            $this->count = is_array($presence) ? ($presence['count'] ?? 0) : ($presence->count ?? 0);
-        } else {
-            $this->members = (array) ($subscriptionData->presence->hash ?? []);
-            $this->count = $subscriptionData->presence->count ?? 0;
-        }
-        $this->me = $this->get($this->myID);
+        $this->members = $data->hash;
+        $this->count = $data->count;
+        $this->me = $this->myID !== null ? $this->get($this->myID) : null;
     }
 
     /**
      * Adds a new member to the collection. For internal use only.
      */
-    public function addMember(mixed $memberData): ?object
+    public function addMember(MemberData $data): Member
     {
-        $userId = is_array($memberData) ? ($memberData['user_id'] ?? null) : ($memberData->user_id ?? null);
-        $userInfo = is_array($memberData) ? ($memberData['user_info'] ?? null) : ($memberData->user_info ?? null);
-
-        if ($userId === null) {
-            return null;
-        }
-
-        if ($this->get($userId) === null) {
+        if ($this->get($data->user_id) === null) {
             $this->count++;
         }
-        $this->members[$userId] = $userInfo;
 
-        return $this->get($userId);
+        $this->members[$data->user_id] = $data->user_info;
+
+        return new Member(id: $data->user_id, info: $data->user_info);
     }
 
     /**
      * Removes a member from the collection. For internal use only.
      */
-    public function removeMember(mixed $memberData): ?object
+    public function removeMember(MemberData $data): ?Member
     {
-        $userId = is_array($memberData) ? ($memberData['user_id'] ?? null) : ($memberData->user_id ?? null);
+        $member = $this->get($data->user_id);
 
-        if ($userId === null) {
-            return null;
-        }
-
-        $member = $this->get($userId);
-        if ($member) {
-            unset($this->members[$userId]);
+        if ($member !== null) {
+            unset($this->members[$data->user_id]);
             $this->count--;
         }
 
@@ -119,7 +93,7 @@ class Members
     }
 
     /**
-     * Resets the collection to the initial state. For internal use only.
+     * Resets the collection to initial state. For internal use only.
      */
     public function reset(): void
     {

@@ -39,9 +39,9 @@ class PresenceChannel extends PrivateChannel
                         if ($channelData && isset($channelData['user_id'])) {
                             $this->members->setMyID($channelData['user_id']);
                         }
-                    } elseif ($this->pusher->user->user_data !== null) {
+                    } elseif ($this->pusher->user->user_data !== null && isset($this->pusher->user->user_data['id'])) {
                         // If the user is signed in, get the id of the authenticated user
-                        $this->members->setMyID($this->pusher->user->user_data['id'] ?? null);
+                        $this->members->setMyID($this->pusher->user->user_data['id']);
                     } else {
                         $suffix = UrlStore::buildLogSuffix('authorizationEndpoint');
                         Logger::error(
@@ -89,11 +89,11 @@ class PresenceChannel extends PrivateChannel
                 $this->handleSubscriptionCountEvent($event);
                 break;
             case 'pusher_internal:member_added':
-                $addedMember = $this->members->addMember($data);
+                $addedMember = $this->members->addMember(MemberData::fromArray($data));
                 $this->emit('pusher:member_added', $addedMember);
                 break;
             case 'pusher_internal:member_removed':
-                $removedMember = $this->members->removeMember($data);
+                $removedMember = $this->members->removeMember(MemberData::fromArray($data));
                 if ($removedMember) {
                     $this->emit('pusher:member_removed', $removedMember);
                 }
@@ -108,7 +108,7 @@ class PresenceChannel extends PrivateChannel
         if ($this->subscriptionCancelled) {
             $this->pusher->unsubscribe($this->name);
         } else {
-            $this->members->onSubscription($event->data);
+            $this->members->onSubscription(PresenceData::fromArray($event->data));
             $this->emit('pusher:subscription_succeeded', $this->members);
         }
     }
