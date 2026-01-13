@@ -54,7 +54,10 @@
         "psr-4": {
             "ArtisanBuild\\Pusher\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
-        }
+        },
+        "files": [
+            "tests/Helpers.php"
+        ]
     },
     "scripts": {
         "post-autoload-dump": "@composer run prepare",
