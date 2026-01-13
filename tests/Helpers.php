@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace ArtisanBuild\Pusher\Tests;
 
+use ArtisanBuild\Pusher\Options;
+use ArtisanBuild\Pusher\Pusher;
+use React\EventLoop\Loop;
+
 /**
  * Load environment variables from a .env file.
  */
@@ -104,3 +108,107 @@ function getTestCredentials(): array
 
 // Load .env file when this file is included
 loadEnv();
+
+/**
+ * Create a Pusher client configured for testing.
+ */
+function createTestClient(bool $withAuth = false): Pusher
+{
+    $credentials = getTestCredentials();
+    $url = getWebSocketUrl();
+
+    $options = new Options(
+        cluster: $credentials['cluster'],
+        wsHost: parse_url($url, PHP_URL_HOST),
+        wsPort: (int) parse_url($url, PHP_URL_PORT),
+        forceTLS: parse_url($url, PHP_URL_SCHEME) === 'wss',
+    );
+
+    if ($withAuth) {
+        $options->channelAuthorization = [
+            'endpoint' => getAuthEndpoint(),
+            'transport' => 'ajax',
+        ];
+    }
+
+    return new Pusher($credentials['key'], $options);
+}
+
+/**
+ * Run the ReactPHP event loop for a specified duration.
+ */
+function runEventLoop(float $timeout = 2.0): void
+{
+    $loop = Loop::get();
+
+    $loop->addTimer($timeout, function () use ($loop) {
+        $loop->stop();
+    });
+
+    $loop->run();
+}
+
+/**
+ * Get the auth endpoint URL for testing.
+ */
+function getAuthEndpoint(): string
+{
+    return (string) env('PUSHER_AUTH_ENDPOINT', 'http://127.0.0.1:8080/broadcasting/auth');
+}
+
+/**
+ * Trigger an event from the server side using the Pusher HTTP API.
+ *
+ * This is used to test that clients can receive events.
+ */
+function triggerServerEvent(string $channel, string $event, array $data): bool
+{
+    $credentials = getTestCredentials();
+    $host = env('PUSHER_HOST', '127.0.0.1');
+    $port = env('PUSHER_PORT', '6001');
+
+    $body = json_encode([
+        'name' => $event,
+        'channel' => $channel,
+        'data' => json_encode($data),
+    ]);
+
+    $path = "/apps/{$credentials['app_id']}/events";
+    $method = 'POST';
+    $timestamp = time();
+
+    // Build signature string (Pusher HTTP API auth)
+    $stringToSign = implode("\n", [
+        $method,
+        $path,
+        implode('&', [
+            'auth_key='.$credentials['key'],
+            'auth_timestamp='.$timestamp,
+            'auth_version=1.0',
+            'body_md5='.md5($body),
+        ]),
+    ]);
+
+    $signature = hash_hmac('sha256', $stringToSign, $credentials['secret']);
+
+    $url = "http://{$host}:{$port}{$path}?".http_build_query([
+        'auth_key' => $credentials['key'],
+        'auth_timestamp' => $timestamp,
+        'auth_version' => '1.0',
+        'body_md5' => md5($body),
+        'auth_signature' => $signature,
+    ]);
+
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\n",
+            'content' => $body,
+            'timeout' => 5,
+        ],
+    ]);
+
+    $result = @file_get_contents($url, false, $context);
+
+    return $result !== false;
+}

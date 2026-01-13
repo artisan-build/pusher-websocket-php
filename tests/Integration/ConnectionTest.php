@@ -2,63 +2,107 @@
 
 declare(strict_types=1);
 
-use function ArtisanBuild\Pusher\Tests\getTestCredentials;
-use function ArtisanBuild\Pusher\Tests\getWebSocketUrl;
+use ArtisanBuild\Pusher\Options;
+use ArtisanBuild\Pusher\Pusher;
 
-describe('Pusher WebSocket Connection', function () {
+use function ArtisanBuild\Pusher\Tests\createTestClient;
+use function ArtisanBuild\Pusher\Tests\runEventLoop;
+
+describe('Pusher Connection', function () {
     it('can establish a connection to the server', function () {
-        $credentials = getTestCredentials();
-        $url = getWebSocketUrl();
+        $pusher = createTestClient();
+        $connected = false;
 
-        // TODO: Once the Pusher client is functional, test actual connection
-        // $pusher = new Pusher($credentials['key'], [
-        //     'cluster' => $credentials['cluster'],
-        //     'wsHost' => parse_url($url, PHP_URL_HOST),
-        //     'wsPort' => parse_url($url, PHP_URL_PORT),
-        //     'forceTLS' => false,
-        // ]);
-        //
-        // $connected = false;
-        // $pusher->connection->bind('connected', function () use (&$connected) {
-        //     $connected = true;
-        // });
-        //
-        // $pusher->connect();
-        //
-        // // Run event loop briefly
-        // React\EventLoop\Loop::get()->addTimer(2, function () {
-        //     React\EventLoop\Loop::get()->stop();
-        // });
-        // React\EventLoop\Loop::get()->run();
-        //
-        // expect($connected)->toBeTrue();
+        $pusher->connection->bind('connected', function () use (&$connected) {
+            $connected = true;
+        });
 
-        // For now, just verify the server is reachable (the beforeEach hook already checks this)
-        expect(true)->toBeTrue();
-    })->todo();
+        $pusher->connect();
+        runEventLoop(timeout: 2.0);
 
-    it('can subscribe to a public channel', function () {
-        // TODO: Test subscribing to a public channel
-    })->todo();
+        expect($connected)->toBeTrue();
+        expect($pusher->connection->state)->toBe('connected');
+    });
 
-    it('can subscribe to a private channel', function () {
-        // TODO: Test subscribing to a private channel with auth
-    })->todo();
+    it('receives a socket_id upon connection', function () {
+        $pusher = createTestClient();
+        $socketId = null;
 
-    it('can subscribe to a presence channel', function () {
-        // TODO: Test subscribing to a presence channel
-    })->todo();
+        $pusher->connection->bind('connected', function () use ($pusher, &$socketId) {
+            $socketId = $pusher->connection->socket_id;
+        });
 
-    it('receives messages on subscribed channels', function () {
-        // TODO: Test receiving messages
-        // This will require triggering an event from another client/server
-    })->todo();
+        $pusher->connect();
+        runEventLoop(timeout: 2.0);
 
-    it('can send client events on private channels', function () {
-        // TODO: Test client events
-    })->todo();
+        expect($socketId)->not->toBeNull();
+        expect($socketId)->toBeString();
+        expect($socketId)->toMatch('/^\d+\.\d+$/'); // Format: "123456.789012"
+    });
 
-    it('reconnects automatically after disconnection', function () {
-        // TODO: Test reconnection logic
-    })->todo();
+    it('can disconnect from the server', function () {
+        $pusher = createTestClient();
+        $disconnected = false;
+
+        $pusher->connection->bind('connected', function () use ($pusher) {
+            $pusher->disconnect();
+        });
+
+        $pusher->connection->bind('disconnected', function () use (&$disconnected) {
+            $disconnected = true;
+        });
+
+        $pusher->connect();
+        runEventLoop(timeout: 2.0);
+
+        expect($disconnected)->toBeTrue();
+        expect($pusher->connection->state)->toBe('disconnected');
+    });
+
+    it('transitions through expected connection states', function () {
+        $pusher = createTestClient();
+        $states = [];
+
+        $pusher->connection->bind('state_change', function ($data) use (&$states) {
+            $states[] = $data['current'];
+        });
+
+        $pusher->connect();
+        runEventLoop(timeout: 2.0);
+
+        expect($states)->toContain('connecting');
+        expect($states)->toContain('connected');
+    });
+
+    it('can reconnect after disconnection', function () {
+        $pusher = createTestClient();
+        $connectionCount = 0;
+
+        $pusher->connection->bind('connected', function () use (&$connectionCount) {
+            $connectionCount++;
+        });
+
+        $pusher->connect();
+        runEventLoop(timeout: 2.0);
+
+        expect($connectionCount)->toBe(1);
+
+        $pusher->disconnect();
+        runEventLoop(timeout: 0.5);
+
+        $pusher->connect();
+        runEventLoop(timeout: 2.0);
+
+        expect($connectionCount)->toBe(2);
+    });
+
+    it('requires an app key to instantiate', function () {
+        expect(fn () => new Pusher('', new Options(cluster: 'mt1')))
+            ->toThrow(RuntimeException::class, 'You must pass your app key');
+    });
+
+    it('requires a cluster option', function () {
+        expect(fn () => new Pusher('test-key', new Options))
+            ->toThrow(RuntimeException::class, 'Options object must provide a cluster');
+    });
 });
