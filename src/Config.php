@@ -179,7 +179,7 @@ class Config
     {
         $userAuthentication = [
             ...$this->defaults->userAuthentication,
-            ...$opts->userAuthentication,
+            ...($opts->userAuthentication ?? []),
         ];
         if (
             array_key_exists('customHandler', $userAuthentication) &&
