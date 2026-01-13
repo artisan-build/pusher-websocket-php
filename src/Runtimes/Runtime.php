@@ -25,7 +25,18 @@ class Runtime
         ]);
     }
 
-    // getLocalStorage(): any;
+    public static function getLocalStorage(): ?\ArrayAccess
+    {
+        // In PHP we don't have browser localStorage
+        // Return null to skip caching functionality
+        return null;
+    }
+
+    public static function getTransports(): array
+    {
+        // TODO: return actual transports table
+        return [];
+    }
 
     public static TimelineTransport $TimelineTransport;
 
@@ -36,12 +47,9 @@ class Runtime
     // getNetwork(): Reachability;
 
     // getDefaultStrategy(
-
-    // config: Config,
-
-    // options: StrategyOptions,
-
-    // defineTransport: Function
+        // config: Config,
+        // options: StrategyOptions,
+        // defineTransport: Function
     // ): Strategy;
 
     // Transports: TransportsTable;

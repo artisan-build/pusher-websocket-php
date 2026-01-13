@@ -349,19 +349,14 @@ class Collections
     //   })(object, '$');
     // }
 
-    // /**
-    //  * Provides a cross-browser and cross-platform way to safely stringify objects
-    //  * into JSON. This is particularly necessary for ReactNative, where circular JSON
-    //  * structures throw an exception.
-    //  *
-    //  * @param  {any}    source The object to stringify
-    //  * @return {string}        The serialized output.
-    //  */
-    // export function safeJSONStringify(source: any): string {
-    //   try {
-    //     return JSON.stringify(source);
-    //   } catch (e) {
-    //     return JSON.stringify(decycleObject(source));
-    //   }
-    // }
+    /**
+     * Provides a safe way to stringify objects into JSON.
+     *
+     * @param  mixed  $source  The object to stringify
+     * @return string The serialized output.
+     */
+    public static function safeJSONStringify(mixed $source): string
+    {
+        return json_encode($source) ?: '{}';
+    }
 }
