@@ -24,18 +24,18 @@ readonly class Defaults
         // DEPRECATED: Other settings
         public string $authEndpoint = '/pusher/auth',
         // TODO: make this an enum for safety
-        // public AuthTransport $authTransport = 'ajax',
-        public string $authTransport = 'ajax',
+        // public AuthTransport $authTransport = 'http',
+        public string $authTransport = 'http',
         public int $activityTimeout = 120_000,
         public int $pongTimeout = 30_000,
         public int $unavailableTimeout = 10_000,
         public array $userAuthentication = [
             'endpoint' => '/pusher/user-auth',
-            'transport' => 'ajax',
+            'transport' => 'http',
         ],
         public array $channelAuthorization = [
             'endpoint' => '/pusher/auth',
-            'transport' => 'ajax',
+            'transport' => 'http',
         ],
 
         // CDN configuration

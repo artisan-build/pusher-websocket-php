@@ -31,7 +31,7 @@ class Runtime
     {
         if (self::$authorizers === null) {
             self::$authorizers = new AuthTransports([
-                'ajax' => new HttpAuth,
+                'http' => new HttpAuth,
             ]);
         }
 

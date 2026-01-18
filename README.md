@@ -90,14 +90,60 @@ $channel->unbind('message');
 
 ```php
 new Options(
-    cluster: 'mt1',           // Required: Pusher cluster
+    cluster: 'mt1',           // Pusher cluster (required for Pusher, empty for self-hosted)
     wsHost: '127.0.0.1',      // WebSocket host
     wsPort: 6001,             // WebSocket port (non-TLS)
     wssPort: 443,             // WebSocket port (TLS)
     forceTLS: true,           // Force TLS connection
     activityTimeout: 120000,  // Milliseconds before sending ping
     pongTimeout: 30000,       // Milliseconds to wait for pong
+    channelAuthorization: [   // For private/presence channels
+        'transport' => 'http',
+        'endpoint' => 'https://your-app.com/broadcasting/auth',
+        'headers' => [
+            'Authorization' => 'Bearer your-token',
+        ],
+    ],
 );
+```
+
+### Channel Authorization
+
+Private and presence channels require authorization. The `http` transport makes a POST request to your auth endpoint:
+
+```php
+$pusher = new Pusher('app-key', new Options(
+    wsHost: '127.0.0.1',
+    wsPort: 8080,
+    channelAuthorization: [
+        'transport' => 'http',
+        'endpoint' => 'https://your-app.com/broadcasting/auth',
+        'headers' => [
+            'Authorization' => 'Bearer ' . $token,
+            'Accept' => 'application/json',
+        ],
+    ],
+));
+
+// Now private channels will authenticate automatically
+$channel = $pusher->subscribe('private-user-123');
+```
+
+For custom authorization logic, use a `customHandler`:
+
+```php
+channelAuthorization: [
+    'customHandler' => function ($params, $callback) {
+        // $params->socketId - the socket ID
+        // $params->channelName - the channel being authorized
+
+        // Make your own auth request...
+        $authData = myCustomAuth($params);
+
+        // Call back with result
+        $callback(null, new ChannelAuthorizationData(auth: $authData['auth']));
+    },
+],
 ```
 
 ## Development
