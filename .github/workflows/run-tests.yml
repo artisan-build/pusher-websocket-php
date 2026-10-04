@@ -20,7 +20,9 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        php: ['8.5', '8.4', '8.3']
+        # Single-entry matrix on purpose: production runs 8.5, so that is all CI tests.
+        # Add 8.6 here when it reaches RC. Do not re-add 8.4 (nothing runs it).
+        php: ['8.5']
         stability: [prefer-stable]
 
     name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
